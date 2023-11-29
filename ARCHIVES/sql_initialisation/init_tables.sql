@@ -8,7 +8,8 @@ CREATE TABLE UTILISATEUR (
     prenom VARCHAR(50),
     email VARCHAR(100),
     password_hash VARCHAR(128),
-    password_salt VARCHAR(50)
+    password_salt VARCHAR(50),
+    user_role VARCHAR(24)
 );
 
 CREATE TABLE EDITEUR_CONFERENCE (

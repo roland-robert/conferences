@@ -24,9 +24,9 @@ def populate_all():
 
     # TODO change salt and hash to match a simple password
     user1 = Utilisateur(nom='John', prenom='Doe', email='john.doe@example.com',
-                        password_hash='hash123', password_salt='salt123')
+                        password_hash='hash123', password_salt='salt123', user_role='user')
     user2 = Utilisateur(nom='Jane', prenom='Doe', email='jane.doe@example.com',
-                        password_hash='hash456', password_salt='salt456')
+                        password_hash='hash456', password_salt='salt456', user_role='admin')
     session.add_all([user1, user2])
     session.commit()
 

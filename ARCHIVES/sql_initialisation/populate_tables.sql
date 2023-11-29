@@ -1,10 +1,10 @@
 INSERT INTO PAYS (nom) VALUES ('Allemagne');
 INSERT INTO PAYS (nom) VALUES ('Canada');
 
+INSERT INTO UTILISATEUR (nom, prenom, email, password_hash, password_salt, user_role)
+VALUES ('Martin', 'Sophie', 'sophie.m@example.com', 'hash789', 'salt789', 'user');
 INSERT INTO UTILISATEUR (nom, prenom, email, password_hash, password_salt)
-VALUES ('Martin', 'Sophie', 'sophie.m@example.com', 'hash789', 'salt789');
-INSERT INTO UTILISATEUR (nom, prenom, email, password_hash, password_salt)
-VALUES ('Lefebvre', 'Pierre', 'pierre.l@example.com', 'hash101', 'salt101');
+VALUES ('Lefebvre', 'Pierre', 'pierre.l@example.com', 'hash101', 'salt101', 'admin');
 
 INSERT INTO EDITEUR_CONFERENCE (nom) VALUES ('Elsevier');
 INSERT INTO EDITEUR_CONFERENCE (nom) VALUES ('ACM Publications');

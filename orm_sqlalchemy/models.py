@@ -19,6 +19,7 @@ class Utilisateur(Base):
     email = Column(String(100))
     password_hash = Column(String(128))
     password_salt = Column(String(50))
+    user_role = Column(String(24))  # user, admin
 
 
 class EditeurConference(Base):
