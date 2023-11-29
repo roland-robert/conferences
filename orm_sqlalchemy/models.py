@@ -59,12 +59,12 @@ class TypeResponsabilite(Base):
 class Responsable(Base):
     __tablename__ = 'responsable'
     id_responsable = Column(Integer, primary_key=True, autoincrement=True)
-    prenom = Column(String(50))
-    nom = Column(String(50))
     adresse_pro = Column(String(100))
-    adresse_email = Column(String(100))
+    id_utilisateur = Column(Integer, ForeignKey(
+        'utilisateur.id_utilisateur'))
     id_type_responsabilite = Column(Integer, ForeignKey(
         'type_responsabilite.id_type_responsabilite'))
+    utilisateur = relationship('Utilisateur')
     type_responsabilite = relationship('TypeResponsabilite')
 
 
@@ -97,6 +97,7 @@ class Conference(Base):
     id_conference_du_workshop = Column(
         Integer, ForeignKey('conference.id_conference'))
     intitule = Column(String(100))
+    date_debut = Column(Date)
     date_fin = Column(Date)
     texte_introductif = Column(String(2000))
 

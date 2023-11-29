@@ -37,11 +37,10 @@ CREATE TABLE TYPE_RESPONSABILITE (
 
 CREATE TABLE RESPONSABLE (
     id_responsable SERIAL PRIMARY KEY,
-    prenom VARCHAR(50),
-    nom VARCHAR(50),
+    id_utilisateur INTEGER,
     adresse_pro VARCHAR(100),
-    adresse_email VARCHAR(100),
     id_type_responsabilite INTEGER,
+    FOREIGN KEY (id_utilisateur) REFERENCES UTILISATEUR(id_utilisateur),
     FOREIGN KEY (id_type_responsabilite) REFERENCES TYPE_RESPONSABILITE(id_type_responsabilite)
 );
 CREATE TABLE LIEN_UTILISATEUR_THEME (
@@ -67,6 +66,7 @@ CREATE TABLE CONFERENCE (
     id_editeur INTEGER,
     id_conference_du_workshop INTEGER,
     intitule VARCHAR(100),
+    date_debut DATE,
     date_fin DATE,
     texte_introductif VARCHAR(2000),
     FOREIGN KEY (id_serie) REFERENCES SERIE(id_serie),
