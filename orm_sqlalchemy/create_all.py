@@ -54,10 +54,8 @@ def populate_all():
     session.add(type_responsability)
     session.commit()
 
-    responsible1 = Responsable(prenom='Responsible1', nom='LastName1', adresse_pro='AddressPro1',
-                               adresse_email='responsible1@example.com', id_type_responsabilite=1)
-    responsible2 = Responsable(prenom='Responsible2', nom='LastName2', adresse_pro='AddressPro2',
-                               adresse_email='responsible2@example.com', id_type_responsabilite=1)
+    responsible1 = Responsable(adresse_pro='AddressPro1', id_user=1, id_type_responsabilite=1)
+    responsible2 = Responsable(adresse_pro='AddressPro2', user_id=2, id_type_responsabilite=1)
     session.add_all([responsible1, responsible2])
     session.commit()
 
@@ -77,6 +75,7 @@ def populate_all():
         id_editeur=1,
         id_conference_du_workshop=None,
         intitule='Conference1',
+        date_debut=date.today(),
         date_fin=date.today(),
         texte_introductif='Introduction for Conference1'
     )

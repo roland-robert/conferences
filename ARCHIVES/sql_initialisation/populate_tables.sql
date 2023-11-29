@@ -23,10 +23,10 @@ INSERT INTO THEME (nom) VALUES ('Systèmes Embarqués');
 INSERT INTO TYPE_RESPONSABILITE (nom) VALUES ('Vice-Président');
 INSERT INTO TYPE_RESPONSABILITE (nom) VALUES ('Secrétaire');
 
-INSERT INTO RESPONSABLE (prenom, nom, adresse_pro, adresse_email, id_type_responsabilite)
-VALUES ('Jean', 'Dupont', '789 Rue des Affaires', 'jean.d@example.com', 1);
-INSERT INTO RESPONSABLE (prenom, nom, adresse_pro, adresse_email, id_type_responsabilite)
-VALUES ('Marie', 'Leblanc', '101 Rue des Sciences', 'marie.l@example.com', 1);
+INSERT INTO RESPONSABLE (adresse_pro, id_utilisateur, id_type_responsabilite)
+VALUES ('789 Rue des Affaires', 1, 1);
+INSERT INTO RESPONSABLE (adresse_pro, id_type_responsabilite)
+VALUES ('101 Rue des Sciences', 2, 1);
 
 INSERT INTO LIEN_UTILISATEUR_THEME (id_utilisateur, id_theme)
 VALUES (1, 1);
@@ -38,8 +38,8 @@ VALUES (2, 'TORONTO');
 INSERT INTO VILLE (id_pays, nom_ville)
 VALUES (1, 'Berlin');
 
-INSERT INTO CONFERENCE (id_serie, id_ville, id_organisateur, id_editeur, intitule, date_fin, texte_introductif, id_conference_du_workshop)
-VALUES (2, 2, 2, 2, 'Conférence 2024', '2024-11-15', 'Ceci est une autre conférence exemple.', NULL);
+INSERT INTO CONFERENCE (id_serie, id_ville, id_organisateur, id_editeur, intitule, date_debut, date_fin, texte_introductif, id_conference_du_workshop)
+VALUES (2, 2, 2, 2, 'Conférence 2024', '2024-11-15', '2024-11-15', 'Ceci est une autre conférence exemple.', NULL);
 
 INSERT INTO CATEGORIE_SOUMISSION (id_conference, nom_categorie, nombre_maxi_pages, font, font_size, type_logiciel, date_soumission, date_notification_acceptation, date_limite_envoi_version_corrigee)
 VALUES (1, 'Article', 12, 'Times New Roman', 11, 'LaTeX', '2024-10-01', '2024-10-30', '2024-11-30');
