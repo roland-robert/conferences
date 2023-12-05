@@ -16,7 +16,7 @@ class Utilisateur(Base):
     id_utilisateur = Column(Integer, primary_key=True, autoincrement=True)
     nom = Column(String(50))
     prenom = Column(String(50))
-    email = Column(String(100))
+    email = Column(String(100), unique=True)
     password_hash = Column(String(128))
     password_salt = Column(String(50))
     user_role = Column(String(24))  # user, admin

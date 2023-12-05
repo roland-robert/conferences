@@ -22,12 +22,15 @@ def populate_all():
     session.add(france)
     session.commit()
 
-    # TODO change salt and hash to match a simple password
     user1 = Utilisateur(nom='John', prenom='Doe', email='john.doe@example.com',
                         password_hash='hash123', password_salt='salt123', user_role='user')
     user2 = Utilisateur(nom='Jane', prenom='Doe', email='jane.doe@example.com',
-                        password_hash='hash456', password_salt='salt456', user_role='admin')
-    session.add_all([user1, user2])
+                        password_hash='hash456', password_salt='salt456', user_role='user')
+
+    # mdp = admin pour le hash
+    user3 = Utilisateur(nom='Walter', prenom='White', email='admin@admin.com',
+                        password_hash='$2b$12$rhbqFlH659WMx.ImtCN1OOuULA3Dhg2ji9tmSBb492e8L1wV0lb6q', password_salt='salt456', user_role='admin')
+    session.add_all([user1, user2, user3])
     session.commit()
 
     editor1 = EditeurConference(nom='Editor1')
@@ -54,8 +57,10 @@ def populate_all():
     session.add(type_responsability)
     session.commit()
 
-    responsible1 = Responsable(adresse_pro='AddressPro1', id_user=1, id_type_responsabilite=1)
-    responsible2 = Responsable(adresse_pro='AddressPro2', user_id=2, id_type_responsabilite=1)
+    responsible1 = Responsable(
+        adresse_pro='AddressPro1', id_type_responsabilite=1, id_utilisateur=2)
+    responsible2 = Responsable(
+        adresse_pro='AddressPro2', id_type_responsabilite=1, id_utilisateur=2)
     session.add_all([responsible1, responsible2])
     session.commit()
 

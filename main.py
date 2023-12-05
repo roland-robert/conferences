@@ -2,12 +2,18 @@ import csv
 import json
 import os
 
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, Body, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from api.users import router as user_rooter
+from api.organisateur import router as organisateur_rooter
+from api.user import router as user_rooter
+from fastapi.security import OAuth2PasswordBearer
+from typing import Annotated
+
 app = FastAPI()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 origins = [
     "http://localhost:3000",
@@ -23,9 +29,15 @@ app.add_middleware(
 
 # routes de api/users.py
 app.include_router(user_rooter)
+app.include_router(organisateur_rooter)
 
 
 @app.get("/test")
 async def get_test():
     """test get method"""
     return {"test": "test"}
+
+
+@app.get("/whatismytoken/")
+async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
+    return {"token": token}

@@ -18,7 +18,7 @@ class PydanticUtilisateur(BaseModel):
     email: str
     password_hash: str
     password_salt: str
-    role_user: str
+    user_role: str
 
 
 class PydanticEditeurConference(BaseModel):

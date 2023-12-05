@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 import settings
 from pydantic_models.models import PydanticOrganisateur
 from orm_sqlalchemy.models import Organisateur
+
 router = APIRouter()
 
 engine = create_engine(settings.POSTGRES_URI)
@@ -14,6 +15,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 @router.get("/organizers/", response_model=list[PydanticOrganisateur])
 async def get_organizers():
     db = SessionLocal()
-    organizers = db.query(Organisateur).all()
+    organizers: list[Organisateur] = db.query(Organisateur).all()
     db.close()
     return organizers
