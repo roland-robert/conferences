@@ -1,0 +1,17 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:16.1
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: conferences
+      POSTGRES_USER: conferences_admin
+      POSTGRES_PASSWORD: conferences_admin
+    ports:
+      - "5432:5432"
+
+  app-conferences:
+    build: .
+    depends_on:
+      - postgres
