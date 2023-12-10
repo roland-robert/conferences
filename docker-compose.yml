@@ -8,16 +8,5 @@ services:
       POSTGRES_DB: conferences
       POSTGRES_USER: conferences_admin
       POSTGRES_PASSWORD: conferences_admin
-    expose:
-      - 5432
     ports:
-      - 5432:5432
-
-  app-conferences:
-    build: .
-    depends_on:
-      - postgres
-    ports:
-      - 8000:8000
-    environment:
-      - IS_DOCKER=yes
+      - "5432:5432"

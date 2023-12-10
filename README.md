@@ -1,6 +1,22 @@
-# Conferences
+# Setup using ONLY docker (very easy)
 
-## Setup Python
+Install docker
+
+    docker compose -f docker-compose-full.yml up
+
+You now have psql server AND fastapi sqlalchemy server running
+
+check, go to http://127.0.0.1:8000
+
+check other stuff :
+
+http://127.0.0.1:8000/conferences
+
+http://127.0.0.1:8000/docs
+
+# Setup manually
+
+## Setup Python and requirements
 
 Install python > 3.10
 
@@ -8,11 +24,17 @@ Install python > 3.10
 
 If dependency conflicts, please create a virtual environment.
 
-## Run postgreSQL in docker
+## Run postgreSQL in docker (or run your own postgres server)
 
 Install docker
 
     docker compose up
+
+Or setup your own postgresql server (make sure you use same credentials as specified in docker compose):
+
+      POSTGRES_DB: conferences
+      POSTGRES_USER: conferences_admin
+      POSTGRES_PASSWORD: conferences_admin
 
 ## initialise psql db (using SQLalchemy)
 
@@ -22,13 +44,17 @@ Install docker
 
     uvicorn main:app --port 8000 --reload
 
-## Test if it works
+# Test if it works
 
 ### Check if container is running
+
+(skip if you setup psql yourself)
 
     docker container ls
 
 ### Check PSQL is running in docker
+
+(skip if you setup psql yourself)
 
     docker exec -e PGPASSWORD=conferences_admin -it postgres psql -U conferences_admin conferences
 
@@ -47,13 +73,11 @@ Basic test :
 
 you should get basic json response {"test": test}
 
-query organizers test :
+query conferences test :
 
-    http://127.0.0.1:8000/organizers
+    http://127.0.0.1:8000/conferences
 
-you should get json list response with all organizers
-
-    [{"id_organisateur":1,"nom":"Organizer1","adresse":"Address1","email":"organizer1@example.com"},...
+you should get json list response with all conferences
 
 You can also check the API docs :D
 

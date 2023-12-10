@@ -20,6 +20,7 @@ def create_all():
 
 def populate_all():
     if session.query(Pays).all():
+        print('Trying to populate already populated db. Nothing will happen.')
         warnings.warn(
             f'Trying to populate already populated db. Nothing will happen.')
         return
