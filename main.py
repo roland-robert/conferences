@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from api.organisateur import router as organisateur_rooter
 from api.user import router as user_rooter
+from api.conference import router as conference_rooter
 from fastapi.security import OAuth2PasswordBearer
 from typing import Annotated
 
@@ -30,12 +31,19 @@ app.add_middleware(
 # routes de api/users.py
 app.include_router(user_rooter)
 app.include_router(organisateur_rooter)
+app.include_router(conference_rooter)
 
 
 @app.get("/test")
 async def get_test():
     """test get method"""
     return {"test": "test"}
+
+
+@app.get("/")
+async def home():
+    """test get method"""
+    return {"Bonjour": "Il n'y a rien ici"}
 
 
 @app.get("/whatismytoken/")

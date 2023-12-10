@@ -1,10 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from datetime import date
+from datetime import date, datetime
 
 from orm_sqlalchemy.models import Base, Pays, Utilisateur, EditeurConference, Serie, Organisateur, Theme, TypeResponsabilite, Responsable, LienUtilisateurTheme, Ville, Conference, CategorieSoumission, Session, LienConferenceResponsable, LienSessionResponsable, LienSessionTheme
 import settings
+import warnings
 
 
 engine = create_engine(settings.POSTGRES_URI)
@@ -18,73 +19,139 @@ def create_all():
 
 
 def populate_all():
-    france = Pays(nom='France')
-    session.add(france)
+    if session.query(Pays).all():
+        warnings.warn(
+            f'Trying to populate already populated db. Nothing will happen.')
+        return
+    countries = ['France', 'Allemagne', 'États-Unis',
+                 'Canada', 'Japon', 'Australie']
+    for country_name in countries:
+        country = Pays(nom=country_name)
+        session.add(country)
     session.commit()
 
     user1 = Utilisateur(nom='John', prenom='Doe', email='john.doe@example.com',
                         password_hash='hash123', password_salt='salt123', user_role='user')
     user2 = Utilisateur(nom='Jane', prenom='Doe', email='jane.doe@example.com',
                         password_hash='hash456', password_salt='salt456', user_role='user')
-
     # mdp = admin pour le hash
     user3 = Utilisateur(nom='Walter', prenom='White', email='admin@admin.com',
                         password_hash='$2b$12$rhbqFlH659WMx.ImtCN1OOuULA3Dhg2ji9tmSBb492e8L1wV0lb6q', password_salt='salt456', user_role='admin')
     session.add_all([user1, user2, user3])
     session.commit()
 
-    editor1 = EditeurConference(nom='Editor1')
-    editor2 = EditeurConference(nom='Editor2')
-    session.add_all([editor1, editor2])
+    editor1 = EditeurConference(nom='EditeurPro')
+    editor2 = EditeurConference(nom='LetsEdit')
+    editor3 = EditeurConference(nom='EditFo')
+    session.add_all([editor1, editor2, editor3,
+                    EditeurConference(nom='Editeur_4')])
     session.commit()
 
-    series = [Serie(nom=f'Serie{i}') for i in range(1, 4)]
+    series = [Serie(nom=f'Serie_{i}') for i in range(1, 6)]
     session.add_all(series)
     session.commit()
 
-    organizer1 = Organisateur(
-        nom='Organizer1', adresse='Address1', email='organizer1@example.com')
-    organizer2 = Organisateur(
-        nom='Organizer2', adresse='Address2', email='organizer2@example.com')
-    session.add_all([organizer1, organizer2])
+    organizers_data = [
+        {
+            'nom': 'BigOrg',
+            'adresse': '4 rue bigorg',
+            'email': 'bigorg@bigorg.com',
+        },
+        {
+            'nom': 'Organizer2',
+            'adresse': '1 rue Paris',
+            'email': 'organizer2@example.com',
+        },
+        {
+            'nom': 'OrgMaster',
+            'adresse': '19 rue du Maitre Co',
+            'email': 'eventmaster@example.com',
+        },
+        {
+            'nom': 'ConferencePro',
+            'adresse': '7 rue du Pro',
+            'email': 'conferencepro@example.com',
+        },
+    ]
+
+    for organizer_data in organizers_data:
+        organizer = Organisateur(**organizer_data)
+        session.add(organizer)
+
     session.commit()
 
-    themes = [Theme(nom=f'Theme{i}') for i in range(1, 4)]
+    themes = [Theme(nom=f'Fusion Collaborative'),
+              Theme(nom=f'Sommet de Synergie Mondiale'),
+              Theme(nom=f'Forum des Horizons Futurs'),
+              Theme(nom=f'Exposition sur les Connaissances'),
+              Theme(nom=f'Confluence de Découverte Technologique')]
     session.add_all(themes)
     session.commit()
 
-    type_responsability = TypeResponsabilite(nom='Type1')
-    session.add(type_responsability)
+    types_responsability = [TypeResponsabilite(
+        nom='Organisateur'), TypeResponsabilite(nom='Secretaire')]
+    session.add_all(types_responsability)
     session.commit()
 
     responsible1 = Responsable(
-        adresse_pro='AddressPro1', id_type_responsabilite=1, id_utilisateur=2)
+        adresse_pro='secretaire@pro.com', id_type_responsabilite=2, id_utilisateur=1)
     responsible2 = Responsable(
-        adresse_pro='AddressPro2', id_type_responsabilite=1, id_utilisateur=2)
+        adresse_pro='secretaire2@pro.com', id_type_responsabilite=1, id_utilisateur=3)
     session.add_all([responsible1, responsible2])
     session.commit()
 
     user_theme_relation = LienUtilisateurTheme(id_utilisateur=1, id_theme=1)
+    user_theme_relation = LienUtilisateurTheme(id_utilisateur=2, id_theme=1)
+    user_theme_relation = LienUtilisateurTheme(id_utilisateur=2, id_theme=3)
+    user_theme_relation = LienUtilisateurTheme(id_utilisateur=3, id_theme=5)
     session.add(user_theme_relation)
     session.commit()
 
-    city1 = Ville(id_pays=1, nom_ville='Paris')
-    city2 = Ville(id_pays=1, nom_ville='Marseille')
-    session.add_all([city1, city2])
+    cities = [Ville(id_pays=1, nom_ville='Paris'), Ville(id_pays=1, nom_ville='Marseille'),
+              Ville(id_pays=2, nom_ville='Berlin'), Ville(
+                  id_pays=2, nom_ville='Munich'),
+              Ville(id_pays=3, nom_ville='New York'), Ville(
+                  id_pays=3, nom_ville='San Francisco'),
+              Ville(id_pays=4, nom_ville='Toronto'), Ville(
+                  id_pays=4, nom_ville='Vancouver'),
+              Ville(id_pays=5, nom_ville='Tokyo'), Ville(
+                  id_pays=5, nom_ville='Osaka'),
+              Ville(id_pays=6, nom_ville='Sydney'), Ville(id_pays=6, nom_ville='Melbourne')]
+
+    session.add_all(cities)
     session.commit()
 
-    conference = Conference(
+    conferences = [Conference(
         id_serie=1,
         id_ville=1,
         id_organisateur=1,
         id_editeur=1,
         id_conference_du_workshop=None,
-        intitule='Conference1',
-        date_debut=date.today(),
-        date_fin=date.today(),
-        texte_introductif='Introduction for Conference1'
-    )
-    session.add(conference)
+        intitule='Conference1_workshop',
+        date_debut=datetime.fromisoformat(
+            '2022-01-04T16:41:24'),
+        date_fin=datetime.fromisoformat(
+            '2022-01-04T18:41:24'),
+        texte_introductif='Introduction for Conference1',
+        image_url="https://admin.live.ilo.org/sites/default/files/2023-06/52951700532_df0e3916d9_k.jpg",
+        is_workshop=True,
+    ),
+        Conference(
+        id_serie=2,
+        id_ville=3,
+        id_organisateur=2,
+        id_editeur=3,
+        id_conference_du_workshop=1,
+        intitule='Conference discussion sur le workshop',
+        date_debut=datetime.fromisoformat(
+            '2023-01-04T16:41:24'),
+        date_fin=datetime.fromisoformat(
+            '2023-01-04T18:41:24'),
+        texte_introductif='Aller on discute',
+        image_url="https://admin.live.ilo.org/sites/default/files/2023-06/52951700532_df0e3916d9_k.jpg",
+        is_workshop=False,
+    )]
+    session.add_all(conferences)
     session.commit()
 
     category_submission = CategorieSoumission(
@@ -94,9 +161,11 @@ def populate_all():
         font='Arial',
         font_size=12,
         type_logiciel='Word',
-        date_soumission=date.today(),
+        date_soumission=datetime.fromisoformat(
+            '2023-01-04T16:41:24'),
         date_notification_acceptation=date.today(),
-        date_limite_envoi_version_corrigee=date.today()
+        date_limite_envoi_version_corrigee=datetime.fromisoformat(
+            '2014-01-04T16:41:24')
     )
     session.add(category_submission)
     session.commit()

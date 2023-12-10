@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import settings
-from pydantic_models.models import PydanticOrganisateur
+from pydantic_models.models import Organisateur as PydanticOrganisateur
 from orm_sqlalchemy.models import Organisateur
 
 router = APIRouter()

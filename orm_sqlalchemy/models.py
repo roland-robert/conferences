@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Boolean, create_engine, Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -96,16 +96,34 @@ class Conference(Base):
         'editeur_conference.id_editeur_conference'))
     id_conference_du_workshop = Column(
         Integer, ForeignKey('conference.id_conference'))
+    id_utilisateur = Column(Integer, ForeignKey(
+        'utilisateur.id_utilisateur'))
     intitule = Column(String(100))
     date_debut = Column(Date)
     date_fin = Column(Date)
     texte_introductif = Column(String(2000))
+    image_url = Column(String)
+    is_workshop = Column(Boolean)
 
+    # liens directes
     serie = relationship('Serie')
     ville = relationship('Ville')
     organisateur = relationship('Organisateur')
-    editeur_conference = relationship('EditeurConference')
-    conference_du_workshop = relationship('Conference')
+    editeur_conference = relationship(
+        'EditeurConference')
+    utilisateur = relationship('Utilisateur')
+
+    # liens via back_prop
+    categories_soumission = relationship(
+        'CategorieSoumission')
+    sessions = relationship('Session')
+
+    # liens via table secondaire
+    responsables = relationship(
+        'Responsable', secondary='lien_conference_responsable')
+
+    # conference_du_workshop = relationship('Conference', back_populates='workshops', remote_side=[id_conference])
+    # on va pas faire ce lien ici directement on sait jamais (récursion infinie ou quoi...)
 
 
 class CategorieSoumission(Base):
@@ -122,7 +140,8 @@ class CategorieSoumission(Base):
     date_notification_acceptation = Column(Date)
     date_limite_envoi_version_corrigee = Column(Date)
 
-    conference = relationship('Conference')
+    conference = relationship(
+        'Conference', back_populates='categories_soumission')
 
 
 class Session(Base):
@@ -130,7 +149,12 @@ class Session(Base):
     id_session = Column(Integer, primary_key=True, autoincrement=True)
     intitule = Column(String(100))
     id_conference = Column(Integer, ForeignKey('conference.id_conference'))
-    conference = relationship('Conference')
+
+    conference = relationship('Conference', back_populates='sessions')
+    responsables = relationship(
+        'Responsable', secondary='lien_session_responsable')
+    themes = relationship(
+        'Theme', secondary='lien_session_theme')
 
 
 class LienConferenceResponsable(Base):
@@ -139,8 +163,6 @@ class LienConferenceResponsable(Base):
         'conference.id_conference'), primary_key=True)
     id_responsable = Column(Integer, ForeignKey(
         'responsable.id_responsable'), primary_key=True)
-    conference = relationship('Conference')
-    responsable = relationship('Responsable')
 
 
 class LienSessionResponsable(Base):
@@ -149,8 +171,6 @@ class LienSessionResponsable(Base):
         'session.id_session'), primary_key=True)
     id_responsable = Column(Integer, ForeignKey(
         'responsable.id_responsable'), primary_key=True)
-    session = relationship('Session')
-    responsable = relationship('Responsable')
 
 
 class LienSessionTheme(Base):
@@ -158,5 +178,3 @@ class LienSessionTheme(Base):
     id_session = Column(Integer, ForeignKey(
         'session.id_session'), primary_key=True)
     id_theme = Column(Integer, ForeignKey('theme.id_theme'), primary_key=True)
-    session = relationship('Session')
-    theme = relationship('Theme')

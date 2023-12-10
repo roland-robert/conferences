@@ -1,18 +1,21 @@
-"""These models are just templates for API documentation and error handling.
+"""These models are just templates for API documentation, error handling and validation.
 They are based on the sqlalchemy models
 """
+
+from pydantic import BaseModel, validator
 from typing import List, Optional
-from datetime import date
-from pydantic import BaseModel
+from datetime import datetime
 
 
-class PydanticPays(BaseModel):
-    id_pays: Optional[int]
+class PaysBase(BaseModel):
     nom: str
 
 
-class PydanticUtilisateur(BaseModel):
-    id_utilisateur: Optional[int]
+class Pays(PaysBase):
+    id_pays: int
+
+
+class UtilisateurBase(BaseModel):
     nom: str
     prenom: str
     email: str
@@ -21,94 +24,186 @@ class PydanticUtilisateur(BaseModel):
     user_role: str
 
 
-class PydanticEditeurConference(BaseModel):
-    id_editeur_conference: Optional[int]
+class Utilisateur(UtilisateurBase):
+    id_utilisateur: int
+
+
+class EditeurConferenceBase(BaseModel):
     nom: str
 
 
-class PydanticSerie(BaseModel):
-    id_serie: Optional[int]
+class EditeurConference(EditeurConferenceBase):
+    id_editeur_conference: int
+
+
+class SerieBase(BaseModel):
     nom: str
 
 
-class PydanticOrganisateur(BaseModel):
-    id_organisateur: Optional[int]
+class Serie(SerieBase):
+    id_serie: int
+
+
+class OrganisateurBase(BaseModel):
     nom: str
     adresse: str
     email: str
 
 
-class PydanticTheme(BaseModel):
-    id_theme: Optional[int]
+class Organisateur(OrganisateurBase):
+    id_organisateur: int | None
+
+
+class ThemeBase(BaseModel):
     nom: str
 
 
-class PydanticTypeResponsabilite(BaseModel):
-    id_type_responsabilite: Optional[int]
+class Theme(ThemeBase):
+    id_theme: int
+
+
+class TypeResponsabiliteBase(BaseModel):
     nom: str
 
 
-class PydanticResponsable(BaseModel):
-    id_responsable: Optional[int]
-    prenom: str
-    nom: str
-    adresse_pro: str
-    adresse_email: str
+class TypeResponsabiliteCreate(TypeResponsabiliteBase):
+    pass
+
+
+class TypeResponsabilite(TypeResponsabiliteBase):
     id_type_responsabilite: int
 
 
-class PydanticLienUtilisateurTheme(BaseModel):
+class ResponsableBase(BaseModel):
+    adresse_pro: str
+    id_utilisateur: int
+    id_type_responsabilite: int
+
+
+class Responsable(ResponsableBase):
+    id_responsable: int
+    utilisateur: Utilisateur
+    type_responsabilite: TypeResponsabilite
+
+
+class LienUtilisateurThemeBase(BaseModel):
     id_utilisateur: int
     id_theme: int
 
 
-class PydanticVille(BaseModel):
-    id_ville: Optional[int]
+class LienUtilisateurThemeCreate(LienUtilisateurThemeBase):
+    pass
+
+
+class LienUtilisateurTheme(LienUtilisateurThemeBase):
+    pass
+
+
+class VilleBase(BaseModel):
     id_pays: int
     nom_ville: str
 
 
-class PydanticConference(BaseModel):
-    id_conference: Optional[int]
-    id_serie: int
+class VilleCreate(VilleBase):
+    pass
+
+
+class Ville(VilleBase):
     id_ville: int
-    id_organisateur: int
-    id_editeur: int
-    id_conference_du_workshop: Optional[int]
-    intitule: str
-    date_fin: date
-    texte_introductif: str
+    pays: Pays
 
 
-class PydanticCategorieSoumission(BaseModel):
-    id_categorie_soumission: Optional[int]
+class CategorieSoumissionBase(BaseModel):
     id_conference: int
     nom_categorie: str
     nombre_maxi_pages: int
     font: str
     font_size: int
     type_logiciel: str
-    date_soumission: date
-    date_notification_acceptation: date
-    date_limite_envoi_version_corrigee: date
+    date_soumission: datetime
+    date_notification_acceptation: datetime
+    date_limite_envoi_version_corrigee: datetime
 
 
-class PydanticSession(BaseModel):
-    id_session: Optional[int]
+class CategorieSoumissionCreate(CategorieSoumissionBase):
+    pass
+
+
+class CategorieSoumission(CategorieSoumissionBase):
+    id_categorie_soumission: int
+
+
+class SessionBase(BaseModel):
     intitule: str
     id_conference: int
 
 
-class PydanticLienConferenceResponsable(BaseModel):
+class Session(SessionBase):
+    id_session: int
+    responsables: List[Responsable]
+    themes: List[Theme]
+
+
+class LienConferenceResponsableBase(BaseModel):
     id_conference: int
     id_responsable: int
 
 
-class PydanticLienSessionResponsable(BaseModel):
+class LienConferenceResponsableCreate(LienConferenceResponsableBase):
+    pass
+
+
+class LienConferenceResponsable(LienConferenceResponsableBase):
+    pass
+
+
+class LienSessionResponsableBase(BaseModel):
     id_session: int
     id_responsable: int
 
 
-class PydanticLienSessionTheme(BaseModel):
+class LienSessionResponsableCreate(LienSessionResponsableBase):
+    pass
+
+
+class LienSessionResponsable(LienSessionResponsableBase):
+    pass
+
+
+class LienSessionThemeBase(BaseModel):
     id_session: int
     id_theme: int
+
+
+class LienSessionThemeCreate(LienSessionThemeBase):
+    pass
+
+
+class LienSessionTheme(LienSessionThemeBase):
+    pass
+
+
+class ConferenceBase(BaseModel):
+    id_serie: int | None
+    id_ville: int | None
+    id_organisateur: int | None
+    id_editeur: int | None
+    id_conference_du_workshop: int | None
+    id_utilisateur: int | None
+    intitule: str | None
+    date_debut: datetime | None
+    date_fin: datetime | None
+    texte_introductif: str | None
+    image_url: str | None
+    is_workshop: bool | None
+
+
+class Conference(ConferenceBase):
+    id_conference: int
+    serie: Serie | None
+    ville: Ville | None
+    organisateur: Organisateur | None
+    editeur_conference: EditeurConference | None
+    utilisateur: Utilisateur | None
+    categories_soumission: List[CategorieSoumission]
+    sessions: List[Session]

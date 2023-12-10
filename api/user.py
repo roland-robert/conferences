@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
 import settings
-from pydantic_models.models import PydanticOrganisateur, PydanticUtilisateur
+from pydantic_models.models import Utilisateur as PydanticUtilisateur
 from orm_sqlalchemy.models import Organisateur
 from orm_sqlalchemy.user import get_user
 from passlib.context import CryptContext

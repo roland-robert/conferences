@@ -1,0 +1,50 @@
+from fastapi import FastAPI, HTTPException, APIRouter, status
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from typing import Literal
+import settings
+
+from pydantic_models.models import Conference
+from orm_sqlalchemy.models import Organisateur
+from orm_sqlalchemy.conference import get_conference, get_conferences
+
+router = APIRouter()
+
+
+@router.get("/conference/{id_conference}", response_model=Conference)
+async def get_conference_by_id(id_conference: int):
+    conference = get_conference(id_conference)
+    if conference is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Conference avec id={id_conference} n'existe pas.",
+        )
+    return conference
+
+
+@router.get("/conferences", response_model=list[Conference])
+async def get_conferences_filter(order_by: Literal['date_debut', 'date_fin'] = 'date_debut',
+                                 order: Literal['asc', 'desc'] = 'asc',
+                                 id_pays: int | None = None,
+                                 id_theme_list: list[int] | None = None,
+                                 id_serie: int | None = None,
+                                 id_editeur: int | None = None,
+                                 responsable: str | None = None,  # nom ou prenom regex sur nom ou prenom contient
+                                 min_date: str | None = None,  # 2023-12-09T00:00:00 UTC format
+                                 max_date: str | None = None,  # 2023-12-09T00:00:00 UTC format
+                                 # None ignore, true only workshops, false only not workshops
+                                 is_workshop: bool | None = None):
+
+    conferences = get_conferences(
+        id_pays=id_pays,
+        id_theme_list=id_theme_list,
+        id_serie=id_serie,
+        id_editeur=id_editeur,
+        responsable=responsable,
+        min_date=min_date,
+        max_date=max_date,
+        is_workshop=is_workshop,
+        order_by=order_by,
+        order=order
+    )
+    return conferences
