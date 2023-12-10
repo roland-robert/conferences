@@ -34,12 +34,6 @@ app.include_router(organisateur_rooter)
 app.include_router(conference_rooter)
 
 
-@app.get("/test")
-async def get_test():
-    """test get method"""
-    return {"test": "test"}
-
-
 @app.get("/")
 async def home():
     """test get method"""

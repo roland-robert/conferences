@@ -1,10 +1,13 @@
 FROM python:3.11
 
-COPY . .
+RUN mkdir conference_app
 
-RUN pip install -r requirements.txt
+COPY requirements.txt /conference_app/
+COPY main.py executor.py run.sh settings.py /conference_app/
+COPY orm_sqlalchemy /conference_app/orm_sqlalchemy
+COPY api  /conference_app/api
+COPY pydantic_models  /conference_app/pydantic_models
 
-RUN echo lol
-RUN ls -la
+RUN pip install -r /conference_app/requirements.txt
 
-CMD ["bash", "run.sh"]
+CMD ["bash", "/conference_app/run.sh"]

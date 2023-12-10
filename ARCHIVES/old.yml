@@ -10,8 +10,3 @@ services:
       POSTGRES_PASSWORD: conferences_admin
     ports:
       - "5432:5432"
-
-  app-conferences:
-    build: .
-    depends_on:
-      - postgres
