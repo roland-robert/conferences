@@ -1,0 +1,25 @@
+* {
+    font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
+        "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+    font-size: 2rem !important;
+    font-weight: 500;
+
+}
+
+.page {
+    margin: .5rem;
+}
+
+.custom-tag {
+    border-radius: 1rem;
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: .8rem;
+    margin-right: 2px;
+    color: white;
+}

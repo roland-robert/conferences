@@ -1,0 +1,12 @@
+.conf-info-label{
+    font-size: 1em;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 8px;
+}
+
+.conf-info-section{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

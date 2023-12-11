@@ -1,0 +1,23 @@
+.conf-card:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+    scale: 1.02;
+    /* transition: all 0.3s ease-in-out; */
+
+}
+
+.conf-card {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease-in-out;
+}
+
+.divider {
+    margin: 0px;
+}
+
+.additional-info-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px;
+}
