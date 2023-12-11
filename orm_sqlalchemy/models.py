@@ -103,7 +103,6 @@ class Conference(Base):
     date_fin = Column(Date)
     texte_introductif = Column(String(2000))
     image_url = Column(String)
-    is_workshop = Column(Boolean)
 
     # liens directes
     serie = relationship('Serie')

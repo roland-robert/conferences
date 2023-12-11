@@ -66,10 +66,6 @@ class TypeResponsabiliteBase(BaseModel):
     nom: str
 
 
-class TypeResponsabiliteCreate(TypeResponsabiliteBase):
-    pass
-
-
 class TypeResponsabilite(TypeResponsabiliteBase):
     id_type_responsabilite: int
 
@@ -184,6 +180,7 @@ class LienSessionTheme(LienSessionThemeBase):
 
 
 class ConferenceBase(BaseModel):
+    id_conference: int
     id_serie: int | None
     id_ville: int | None
     id_organisateur: int | None
@@ -195,11 +192,9 @@ class ConferenceBase(BaseModel):
     date_fin: datetime | None
     texte_introductif: str | None
     image_url: str | None
-    is_workshop: bool | None
 
 
 class Conference(ConferenceBase):
-    id_conference: int
     serie: Serie | None
     ville: Ville | None
     organisateur: Organisateur | None

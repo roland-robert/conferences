@@ -1,11 +1,12 @@
 from fastapi import Depends, FastAPI, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
+from pydantic_models.models import SessionBase, ThemeBase
 from sqlalchemy import create_engine, select, exists, or_, and_
 from sqlalchemy.orm import sessionmaker, joinedload
 from typing import Literal
 import settings
-from orm_sqlalchemy.models import Utilisateur, Conference, Responsable, Organisateur, Session, Theme
+from orm_sqlalchemy.models import CategorieSoumission, Utilisateur, Conference, Responsable, Organisateur, Session, Theme
 from passlib.context import CryptContext
 from sqlalchemy.exc import NoResultFound
 from datetime import datetime
@@ -87,9 +88,11 @@ def get_conferences(
 
     if is_workshop is not None:
         if is_workshop:
-            filters.append(Conference.is_workshop == True)
+            filters.append(Conference.categories_soumission.any(
+                CategorieSoumission.nom_categorie == 'workshop'))
         else:
-            filters.append(Conference.is_workshop == False)
+            filters.append(~Conference.categories_soumission.any(
+                CategorieSoumission.nom_categorie == 'workshop'))
 
     query = query.filter(and_(*filters))
 
@@ -102,3 +105,9 @@ def get_conferences(
 
     conferences: list[Conference] = query.all()
     return conferences
+
+def insert_or_update_conference(data):
+    pass
+
+def add_session_to_conference(session: SessionBase, new_themes: list[ThemeBase] = [], link_themes: list[int] = [], link_responsable: list[int] = []):
+    pass

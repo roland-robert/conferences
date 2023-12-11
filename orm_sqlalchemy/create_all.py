@@ -128,14 +128,13 @@ def populate_all():
         id_organisateur=1,
         id_editeur=1,
         id_conference_du_workshop=None,
-        intitule='Conference1_workshop',
+        intitule='Conference discussion sur le workshop',
         date_debut=datetime.fromisoformat(
-            '2022-01-04T16:41:24'),
+            '2023-01-04T16:41:24'),
         date_fin=datetime.fromisoformat(
-            '2022-01-04T18:41:24'),
+            '2023-01-04T18:41:24'),
         texte_introductif='Introduction for Conference1',
         image_url="https://admin.live.ilo.org/sites/default/files/2023-06/52951700532_df0e3916d9_k.jpg",
-        is_workshop=True,
     ),
         Conference(
         id_serie=2,
@@ -143,32 +142,91 @@ def populate_all():
         id_organisateur=2,
         id_editeur=3,
         id_conference_du_workshop=1,
-        intitule='Conference discussion sur le workshop',
+        intitule='Workshop',
         date_debut=datetime.fromisoformat(
-            '2023-01-04T16:41:24'),
+            '2022-01-04T16:41:24'),
         date_fin=datetime.fromisoformat(
-            '2023-01-04T18:41:24'),
+            '2022-01-04T18:41:24'),
         texte_introductif='Aller on discute',
         image_url="https://admin.live.ilo.org/sites/default/files/2023-06/52951700532_df0e3916d9_k.jpg",
-        is_workshop=False,
     )]
     session.add_all(conferences)
     session.commit()
 
-    category_submission = CategorieSoumission(
+    categories_list = []
+
+    # Existing category
+    category_submission1 = CategorieSoumission(
         id_conference=1,
         nom_categorie='Category1',
         nombre_maxi_pages=10,
         font='Arial',
         font_size=12,
         type_logiciel='Word',
-        date_soumission=datetime.fromisoformat(
-            '2023-01-04T16:41:24'),
+        date_soumission=datetime.fromisoformat('2023-01-04T16:41:24'),
         date_notification_acceptation=date.today(),
         date_limite_envoi_version_corrigee=datetime.fromisoformat(
             '2014-01-04T16:41:24')
     )
-    session.add(category_submission)
+    categories_list.append(category_submission1)
+
+    category_submission_regular_paper = CategorieSoumission(
+        id_conference=1,
+        nom_categorie='Regular paper',
+        nombre_maxi_pages=12,
+        font='Times New Roman',
+        font_size=14,
+        type_logiciel='PDF',
+        date_soumission=datetime.fromisoformat('2023-02-15T10:30:00'),
+        date_notification_acceptation=date.today(),
+        date_limite_envoi_version_corrigee=datetime.fromisoformat(
+            '2014-02-28T18:00:00')
+    )
+    categories_list.append(category_submission_regular_paper)
+
+    category_submission_panel = CategorieSoumission(
+        id_conference=1,
+        nom_categorie='Panel',
+        nombre_maxi_pages=8,
+        font='Helvetica',
+        font_size=10,
+        type_logiciel='PowerPoint',
+        date_soumission=datetime.fromisoformat('2023-02-20T12:45:00'),
+        date_notification_acceptation=date.today(),
+        date_limite_envoi_version_corrigee=datetime.fromisoformat(
+            '2014-03-05T15:30:00')
+    )
+    categories_list.append(category_submission_panel)
+
+    category_submission_tutorial = CategorieSoumission(
+        id_conference=2,
+        nom_categorie='Tutorial',
+        nombre_maxi_pages=15,
+        font='Courier New',
+        font_size=16,
+        type_logiciel='Markdown',
+        date_soumission=datetime.fromisoformat('2023-03-10T08:00:00'),
+        date_notification_acceptation=date.today(),
+        date_limite_envoi_version_corrigee=datetime.fromisoformat(
+            '2014-04-01T20:00:00')
+    )
+    categories_list.append(category_submission_tutorial)
+
+    category_submission_workshop = CategorieSoumission(
+        id_conference=2,
+        nom_categorie='workshop',
+        nombre_maxi_pages=15,
+        font='Courier New',
+        font_size=14,
+        type_logiciel='Markdown',
+        date_soumission=datetime.fromisoformat('2023-03-10T08:00:00'),
+        date_notification_acceptation=date.today(),
+        date_limite_envoi_version_corrigee=datetime.fromisoformat(
+            '2014-04-01T20:00:00')
+    )
+    categories_list.append(category_submission_workshop)
+
+    session.add_all(categories_list)
     session.commit()
 
     session1 = Session(intitule='Session1', id_conference=1)
