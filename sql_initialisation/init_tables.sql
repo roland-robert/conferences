@@ -1,82 +1,83 @@
-CREATE TABLE PAYS (
+CREATE TABLE pays (
     id_pays SERIAL PRIMARY KEY,
     nom VARCHAR(50)
 );
-CREATE TABLE UTILISATEUR (
+
+CREATE TABLE utilisateur (
     id_utilisateur SERIAL PRIMARY KEY,
     nom VARCHAR(50),
     prenom VARCHAR(50),
-    email VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
     password_hash VARCHAR(128),
-    password_salt VARCHAR(50)
+    password_salt VARCHAR(50),
+    user_role VARCHAR(24)
 );
 
-CREATE TABLE EDITEUR_CONFERENCE (
+CREATE TABLE editeur_conference (
     id_editeur_conference SERIAL PRIMARY KEY,
     nom VARCHAR(50)
 );
-CREATE TABLE SERIE (
+
+CREATE TABLE serie (
     id_serie SERIAL PRIMARY KEY,
     nom VARCHAR(50)
 );
-CREATE TABLE ORGANISATEUR (
+
+CREATE TABLE organisateur (
     id_organisateur SERIAL PRIMARY KEY,
     nom VARCHAR(50),
     adresse VARCHAR(100),
     email VARCHAR(100)
 );
-CREATE TABLE THEME (
+
+CREATE TABLE theme (
     id_theme SERIAL PRIMARY KEY,
     nom VARCHAR(50)
 );
-CREATE TABLE TYPE_RESPONSABILITE (
+
+CREATE TABLE type_responsabilite (
     id_type_responsabilite SERIAL PRIMARY KEY,
     nom VARCHAR(50)
 );
 
-CREATE TABLE RESPONSABLE (
+CREATE TABLE responsable (
     id_responsable SERIAL PRIMARY KEY,
-    prenom VARCHAR(50),
-    nom VARCHAR(50),
     adresse_pro VARCHAR(100),
-    adresse_email VARCHAR(100),
-    id_type_responsabilite INTEGER,
-    FOREIGN KEY (id_type_responsabilite) REFERENCES TYPE_RESPONSABILITE(id_type_responsabilite)
+    id_utilisateur INTEGER REFERENCES utilisateur(id_utilisateur),
+    id_type_responsabilite INTEGER REFERENCES type_responsabilite(id_type_responsabilite)
 );
-CREATE TABLE LIEN_UTILISATEUR_THEME (
-    id_utilisateur INTEGER,
-    id_theme INTEGER,
-    PRIMARY KEY (id_utilisateur, id_theme),
-    FOREIGN KEY (id_utilisateur) REFERENCES UTILISATEUR(id_utilisateur),
-    FOREIGN KEY (id_theme) REFERENCES THEME(id_theme)
+
+CREATE TABLE lien_utilisateur_theme (
+    id_utilisateur INTEGER REFERENCES utilisateur(id_utilisateur),
+    id_theme INTEGER REFERENCES theme(id_theme),
+    PRIMARY KEY (id_utilisateur, id_theme)
 );
-CREATE TABLE VILLE (
+
+CREATE TABLE ville (
     id_ville SERIAL PRIMARY KEY,
-    id_pays INTEGER,
-    nom_ville VARCHAR(255),
-    FOREIGN KEY (id_pays) REFERENCES PAYS(id_pays)
+    id_pays INTEGER REFERENCES pays(id_pays),
+    nom_ville VARCHAR(255)
 );
 
-
-CREATE TABLE CONFERENCE (
+CREATE TABLE conference (
     id_conference SERIAL PRIMARY KEY,
-    id_serie INTEGER,
-    id_ville INTEGER,
-    id_organisateur INTEGER,
-    id_editeur INTEGER,
-    id_conference_du_workshop INTEGER,
+    id_serie INTEGER REFERENCES serie(id_serie),
+    id_ville INTEGER REFERENCES ville(id_ville),
+    id_organisateur INTEGER REFERENCES organisateur(id_organisateur),
+    id_editeur INTEGER REFERENCES editeur_conference(id_editeur_conference),
+    id_conference_du_workshop INTEGER REFERENCES conference(id_conference),
+    id_utilisateur INTEGER REFERENCES utilisateur(id_utilisateur),
     intitule VARCHAR(100),
+    date_debut DATE,
     date_fin DATE,
     texte_introductif VARCHAR(2000),
-    FOREIGN KEY (id_serie) REFERENCES SERIE(id_serie),
-    FOREIGN KEY (id_ville) REFERENCES VILLE(id_ville),
-    FOREIGN KEY (id_organisateur) REFERENCES ORGANISATEUR(id_organisateur),
-    FOREIGN KEY (id_editeur) REFERENCES EDITEUR_CONFERENCE(id_editeur_conference),
-    FOREIGN KEY (id_conference_du_workshop) REFERENCES CONFERENCE(id_conference)
+    image_url VARCHAR,
+    FOREIGN KEY (id_conference_du_workshop) REFERENCES conference(id_conference)
 );
-CREATE TABLE CATEGORIE_SOUMISSION (
+
+CREATE TABLE categorie_soumission (
     id_categorie_soumission SERIAL PRIMARY KEY,
-    id_conference INTEGER,
+    id_conference INTEGER REFERENCES conference(id_conference),
     nom_categorie VARCHAR(25),
     nombre_maxi_pages INTEGER,
     font VARCHAR(50),
@@ -85,38 +86,29 @@ CREATE TABLE CATEGORIE_SOUMISSION (
     date_soumission DATE,
     date_notification_acceptation DATE,
     date_limite_envoi_version_corrigee DATE,
-    FOREIGN KEY (id_conference) REFERENCES CONFERENCE(id_conference)
+    FOREIGN KEY (id_conference) REFERENCES conference(id_conference)
 );
 
-
-
-CREATE TABLE SESSION (
+CREATE TABLE session (
     id_session SERIAL PRIMARY KEY,
     intitule VARCHAR(100),
-    id_conference INTEGER,
-    FOREIGN KEY (id_conference) REFERENCES CONFERENCE(id_conference)
-);
-CREATE TABLE LIEN_CONFERENCE_RESPONSABLE (
-    id_conference INTEGER,
-    id_responsable INTEGER,
-    PRIMARY KEY (id_conference, id_responsable),
-    FOREIGN KEY (id_conference) REFERENCES CONFERENCE(id_conference),
-    FOREIGN KEY (id_responsable) REFERENCES RESPONSABLE(id_responsable)
+    id_conference INTEGER REFERENCES conference(id_conference)
 );
 
-
-
-CREATE TABLE LIEN_SESSION_RESPONSABLE (
-    id_session INTEGER,
-    id_responsable INTEGER,
-    PRIMARY KEY (id_session, id_responsable),
-    FOREIGN KEY (id_session) REFERENCES SESSION(id_session),
-    FOREIGN KEY (id_responsable) REFERENCES RESPONSABLE(id_responsable)
+CREATE TABLE lien_conference_responsable (
+    id_conference INTEGER REFERENCES conference(id_conference),
+    id_responsable INTEGER REFERENCES responsable(id_responsable),
+    PRIMARY KEY (id_conference, id_responsable)
 );
-CREATE TABLE LIEN_SESSION_THEME (
-    id_session INTEGER,
-    id_theme INTEGER,
-    PRIMARY KEY (id_session, id_theme),
-    FOREIGN KEY (id_session) REFERENCES SESSION(id_session),
-    FOREIGN KEY (id_theme) REFERENCES THEME(id_theme)
+
+CREATE TABLE lien_session_responsable (
+    id_session INTEGER REFERENCES session(id_session),
+    id_responsable INTEGER REFERENCES responsable(id_responsable),
+    PRIMARY KEY (id_session, id_responsable)
+);
+
+CREATE TABLE lien_session_theme (
+    id_session INTEGER REFERENCES session(id_session),
+    id_theme INTEGER REFERENCES theme(id_theme),
+    PRIMARY KEY (id_session, id_theme)
 );
