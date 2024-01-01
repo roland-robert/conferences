@@ -35,8 +35,8 @@ def create_categorie_soumission(categorie_soumission: CategorieSoumissionBase) -
 def update_categorie_soumission(categorie_soumission: CategorieSoumissionUpdate) -> None:
     # PUT
     try:
-        existing_categorie_soumission = session.query(Theme).filter_by(
-            id_theme=categorie_soumission.id_categorie_soumission).one()
+        existing_categorie_soumission = session.query(CategorieSoumission).filter_by(
+            id_categorie_soumission=categorie_soumission.id_categorie_soumission).one()
     except NoResultFound:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

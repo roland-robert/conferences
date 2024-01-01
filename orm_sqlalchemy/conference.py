@@ -113,7 +113,6 @@ def get_conferences(
     return conferences
 
 
-
 def post_conference(conference: ConferenceBase) -> int:
     with engine.connect() as connection:
         transaction = connection.begin()
@@ -215,8 +214,8 @@ def post_or_update_conference_pro(conference: ConferenceCreateOrUpdate) -> int:
         create_or_update_session_full(session)
 
     for categorie_soumission in conference.categories_soumission:
-        data = categorie_soumission.model_dump()
         categorie_soumission.id_conference = conference_id
+        data = categorie_soumission.model_dump()
         if categorie_soumission.id_categorie_soumission:
             update_categorie_soumission(CategorieSoumissionUpdate(
                 **data))
