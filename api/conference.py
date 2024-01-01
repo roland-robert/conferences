@@ -60,6 +60,63 @@ async def update_conference_endpoint(conference: ConferenceUpdate):
     return update_conference(conference)
 
 
-@router.post("/conference_full_pro/", response_model=int)
+conference_full_pro_desc = """Le modèle exacte du body est le suivant, quand il y a =None, alors facultatif.
+class ConferenceCreateOrUpdate(BaseModel):
+
+    id_serie: int | None = None
+    
+    id_ville: int | None = None
+    
+    id_organisateur: int | None = None
+    
+    id_editeur: int | None = None
+    
+    id_conference_du_workshop: int | None = None
+    
+    id_utilisateur: int | None = None
+    
+    intitule: str | None = None
+    
+    date_debut: datetime | None = None
+    
+    date_fin: datetime | None = None
+    
+    texte_introductif: str | None = None
+    
+    image_url: str | None = None
+    
+    serie: SerieOptional | None = None
+    
+    ville: Ville | None = None
+    
+    organisateur: Organisateur | None = None
+    
+    editeur_conference: EditeurConference | None = None
+    
+    utilisateur: Utilisateur | None = None
+    
+    categories_soumission: List[CategorieSoumission]
+    
+    sessions: List[Session]
+    
+    id_conference: int | None = None
+
+Attention : 
+
+Les ids directes dans l'objet conference l'emportent sur le reste, donc par exemple pour ajouter un éditeur il faut l'objet editeur (sans id_editeur) et pas mettre d'id_editeur dans l'objet conférence.
+
+Pour relier une conférence à un autre editeur il suffit d'avoir l'id_editeur.
+
+Pour relier à un autre éditeur et update l'éditeur il faut set l'id_editeur à null et avoir un id_editeur dans l'objet editeur.
+
+Les autres attributs 'image_url, texte_introductifs etc..., si ils ne sont pas présent SERONT SUPPRIMéS ! (set à NULL dans SQL).
+
+Les villes et les utilisateurs ne seront pas updatés ici, on ne peut que changer les liens.
+
+On suppose quand l'entrée est bonne, vérifier que tous les ids passés existent sinon on peut récupérer une erreur 500 non documentée ! (il faudra regarder les logs serveurs pour comprendre)
+"""
+
+
+@router.post("/conference_full_pro/", response_model=int, description=conference_full_pro_desc)
 async def post_or_update_conference_pro_endpoint(conference: ConferenceCreateOrUpdate):
     return post_or_update_conference_pro(conference)
