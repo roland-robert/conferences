@@ -1,6 +1,5 @@
 from sqlalchemy import Boolean, create_engine, Column, Integer, String, Date, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
 
 Base = declarative_base()
 
@@ -48,6 +47,12 @@ class Theme(Base):
     id_theme = Column(Integer, primary_key=True, autoincrement=True)
     nom = Column(String(50))
 
+    # liens via table secondaire
+    sessions = relationship(
+        'Session', secondary='lien_session_theme')
+    utilisateurs = relationship(
+        'Utilisateur', secondary='lien_utilisateur_theme')
+
 
 class TypeResponsabilite(Base):
     __tablename__ = 'type_responsabilite'
@@ -73,8 +78,6 @@ class LienUtilisateurTheme(Base):
     id_utilisateur = Column(Integer, ForeignKey(
         'utilisateur.id_utilisateur'), primary_key=True)
     id_theme = Column(Integer, ForeignKey('theme.id_theme'), primary_key=True)
-    utilisateur = relationship('Utilisateur')
-    theme = relationship('Theme')
 
 
 class Ville(Base):
@@ -153,7 +156,7 @@ class Session(Base):
     responsables = relationship(
         'Responsable', secondary='lien_session_responsable')
     themes = relationship(
-        'Theme', secondary='lien_session_theme')
+        'Theme', secondary='lien_session_theme', overlaps='sessions')
 
 
 class LienConferenceResponsable(Base):

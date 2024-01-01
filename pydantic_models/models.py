@@ -28,6 +28,27 @@ class Utilisateur(UtilisateurBase):
     id_utilisateur: int
 
 
+class UtilisateurCreate(BaseModel):
+    nom: str
+    prenom: str
+    email: str
+    password: str
+
+
+class UtilisateurUpdate(BaseModel):
+    id_utilisateur: int
+    nom: str | None
+    prenom: str | None
+
+
+class UtilisateurRead(BaseModel):
+    id_utilisateur: int
+    nom: str | None
+    prenom: str | None
+    email: str
+    user_role: str
+
+
 class EditeurConferenceBase(BaseModel):
     nom: str
 
@@ -36,12 +57,24 @@ class EditeurConference(EditeurConferenceBase):
     id_editeur_conference: int
 
 
+class EditeurConferenceUpdate(EditeurConference):
+    pass
+
+
 class SerieBase(BaseModel):
     nom: str
 
 
 class Serie(SerieBase):
     id_serie: int
+
+
+class SerieUpdate(Serie):
+    pass
+
+
+class SerieOptional(SerieBase):
+    id_serie: int | None
 
 
 class OrganisateurBase(BaseModel):
@@ -54,12 +87,24 @@ class Organisateur(OrganisateurBase):
     id_organisateur: int | None
 
 
+class OrganisateurUpdate(OrganisateurBase):
+    id_organisteur: int
+
+
 class ThemeBase(BaseModel):
     nom: str
 
 
 class Theme(ThemeBase):
+    id_theme: int | None
+
+
+class ThemeUpdate(ThemeBase):
     id_theme: int
+
+
+class ThemeOptional(ThemeBase):
+    id_theme: int | None
 
 
 class TypeResponsabiliteBase(BaseModel):
@@ -67,37 +112,33 @@ class TypeResponsabiliteBase(BaseModel):
 
 
 class TypeResponsabilite(TypeResponsabiliteBase):
-    id_type_responsabilite: int
+    id_type_responsabilite: int | None
 
 
 class ResponsableBase(BaseModel):
-    adresse_pro: str
-    id_utilisateur: int
-    id_type_responsabilite: int
+    adresse_pro: str | None
+    id_utilisateur: int | None
+    id_type_responsabilite: int | None
+
+
+class ResponsableUpdate(ResponsableBase):
+    id_responsable: int | None
 
 
 class Responsable(ResponsableBase):
-    id_responsable: int
-    utilisateur: Utilisateur
-    type_responsabilite: TypeResponsabilite
+    id_responsable: int | None
+    utilisateur: Utilisateur | None
+    type_responsabilite: TypeResponsabilite | None
 
 
 class LienUtilisateurThemeBase(BaseModel):
-    id_utilisateur: int
-    id_theme: int
-
-
-class LienUtilisateurThemeCreate(LienUtilisateurThemeBase):
-    pass
-
-
-class LienUtilisateurTheme(LienUtilisateurThemeBase):
-    pass
+    id_utilisateur: int | None
+    id_theme: int | None
 
 
 class VilleBase(BaseModel):
-    id_pays: int
-    nom_ville: str
+    id_pays: int | None
+    nom_ville: str | None
 
 
 class VilleCreate(VilleBase):
@@ -105,20 +146,25 @@ class VilleCreate(VilleBase):
 
 
 class Ville(VilleBase):
-    id_ville: int
-    pays: Pays
+    id_ville: int | None
+    pays: Pays | None
+
+
+class VilleAndPays(BaseModel):
+    nom_ville: str | None
+    pays: PaysBase
 
 
 class CategorieSoumissionBase(BaseModel):
-    id_conference: int
-    nom_categorie: str
-    nombre_maxi_pages: int
-    font: str
-    font_size: int
-    type_logiciel: str
-    date_soumission: datetime
-    date_notification_acceptation: datetime
-    date_limite_envoi_version_corrigee: datetime
+    id_conference: int | None
+    nom_categorie: str | None
+    nombre_maxi_pages: int | None
+    font: str | None
+    font_size: int | None
+    type_logiciel: str | None
+    date_soumission: datetime | None
+    date_notification_acceptation: datetime | None
+    date_limite_envoi_version_corrigee: datetime | None
 
 
 class CategorieSoumissionCreate(CategorieSoumissionBase):
@@ -126,16 +172,24 @@ class CategorieSoumissionCreate(CategorieSoumissionBase):
 
 
 class CategorieSoumission(CategorieSoumissionBase):
+    id_categorie_soumission: int | None
+
+
+class CategorieSoumissionUpdate(CategorieSoumissionBase):
     id_categorie_soumission: int
 
 
 class SessionBase(BaseModel):
     intitule: str
-    id_conference: int
+    id_conference: int | None
+
+
+class SessionUpdate(SessionBase):
+    id_session: int
 
 
 class Session(SessionBase):
-    id_session: int
+    id_session: int | None
     responsables: List[Responsable]
     themes: List[Theme]
 
@@ -171,16 +225,11 @@ class LienSessionThemeBase(BaseModel):
     id_theme: int
 
 
-class LienSessionThemeCreate(LienSessionThemeBase):
-    pass
-
-
 class LienSessionTheme(LienSessionThemeBase):
     pass
 
 
 class ConferenceBase(BaseModel):
-    id_conference: int
     id_serie: int | None
     id_ville: int | None
     id_organisateur: int | None
@@ -194,8 +243,27 @@ class ConferenceBase(BaseModel):
     image_url: str | None
 
 
+class ConferenceUpdate(ConferenceBase):
+    id_conference: int
+
+
+class ConferenceCreate(ConferenceBase):
+    serie: SerieOptional | None
+    ville: Ville | None
+    organisateur: Organisateur | None
+    editeur_conference: EditeurConference | None
+    utilisateur: Utilisateur | None
+    categories_soumission: List[CategorieSoumission]
+    sessions: List[Session]
+
+
+class ConferenceCreateOrUpdate(ConferenceCreate):
+    id_conference: int | None
+
+
 class Conference(ConferenceBase):
-    serie: Serie | None
+    id_conference: int
+    serie: SerieOptional | None
     ville: Ville | None
     organisateur: Organisateur | None
     editeur_conference: EditeurConference | None

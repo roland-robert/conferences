@@ -10,3 +10,6 @@ services:
       POSTGRES_PASSWORD: conferences_admin
     ports:
       - "5432:5432"
+    volumes:
+      - ./sql_initialisation/init_tables.sql:/docker-entrypoint-initdb.d/init_tables.sql
+      - ./sql_initialisation/populate_tables.sql:/docker-entrypoint-initdb.d/populate_tables.sql

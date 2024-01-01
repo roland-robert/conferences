@@ -4,11 +4,11 @@ from sqlalchemy.orm import sessionmaker
 from typing import Literal
 import settings
 
-from pydantic_models.models import Conference
+from pydantic_models.models import Conference, ConferenceBase, ConferenceCreateOrUpdate, ConferenceUpdate
 from orm_sqlalchemy.models import Organisateur
-from orm_sqlalchemy.conference import get_conference, get_conferences
+from orm_sqlalchemy.conference import get_conference, get_conferences, post_conference, update_conference, post_or_update_conference_pro
 
-router = APIRouter()
+router = APIRouter(tags=["Conference"])
 
 
 @router.get("/conference/{id_conference}", response_model=Conference)
@@ -48,3 +48,18 @@ async def get_conferences_filter(order_by: Literal['date_debut', 'date_fin'] = '
         order=order
     )
     return conferences
+
+
+@router.post("/conference/", response_model=int)
+async def post_conference_endpoint(conference: ConferenceBase):
+    return post_conference(conference)
+
+
+@router.put("/conference/", response_model=int)
+async def update_conference_endpoint(conference: ConferenceUpdate):
+    return update_conference(conference)
+
+
+@router.post("/conference_full_pro/", response_model=int)
+async def post_or_update_conference_pro_endpoint(conference: ConferenceCreateOrUpdate):
+    return post_or_update_conference_pro(conference)

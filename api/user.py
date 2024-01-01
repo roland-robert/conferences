@@ -11,13 +11,13 @@ from sqlalchemy.orm import sessionmaker
 import settings
 from pydantic_models.models import Utilisateur as PydanticUtilisateur
 from orm_sqlalchemy.models import Organisateur
-from orm_sqlalchemy.user import get_user
+from orm_sqlalchemy.user_get import get_user
 from passlib.context import CryptContext
 import sys
 import os
 
 
-router = APIRouter()
+router = APIRouter(tags=["Utilisateur"])
 
 
 # to get a string like this run:

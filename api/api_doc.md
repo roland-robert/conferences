@@ -78,7 +78,6 @@ class Conference {
     texteIntroductif?: string;
     ville?: Ville;
     image?: string;
-    sessions?: Session[];
     workshopConferenceId?: int;
 }
 ```
