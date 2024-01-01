@@ -1,0 +1,162 @@
+from datetime import datetime
+from pydantic_models.models import (
+    CategorieSoumission,
+    CategorieSoumissionBase,
+    CategorieSoumissionUpdate,
+    ConferenceBase,
+    ConferenceCreate,
+    ConferenceCreateOrUpdate,
+    ConferenceUpdate,
+    Responsable,
+    SerieOptional,
+    Session,
+    Theme,
+    Ville,
+    Organisateur,
+    EditeurConference,
+    Utilisateur,
+)
+from orm_sqlalchemy.conference import (
+    get_conference,
+    get_conferences,
+    post_conference,
+    update_conference,
+    post_or_update_conference_pro,
+)
+
+
+def test_get_conference():
+    conference_id = 1
+    result = get_conference(conference_id)
+    assert result is not None
+
+
+def test_get_conferences(clean_atabase):
+    order_by = "date_debut"
+    order = "asc"
+    id_pays = 1
+    id_theme_list = [1, 2]
+    id_serie = 1
+    id_editeur = 1
+    responsable = "John"
+    min_date = "2023-12-09T00:00:00"
+    max_date = "2023-12-10T00:00:00"
+    is_workshop = True
+
+    result = get_conferences(
+        order_by=order_by,
+        order=order,
+        id_pays=id_pays,
+        id_theme_list=id_theme_list,
+        id_serie=id_serie,
+        id_editeur=id_editeur,
+        responsable=responsable,
+        min_date=min_date,
+        max_date=max_date,
+        is_workshop=is_workshop,
+    )
+    assert len(result) > 0
+
+
+def test_post_conference(clean_database):
+    conference_data = ConferenceBase(
+        id_serie=1,
+        id_ville=1,
+        id_organisateur=1,
+        id_editeur=1,
+        id_conference_du_workshop=1,
+        id_utilisateur=1,
+        intitule="Test Conference",
+        date_debut=datetime.now(),
+        date_fin=datetime.now(),
+        texte_introductif="Introduction",
+        image_url="http://example.com/image.jpg",
+    )
+
+    result = post_conference(conference_data)
+    assert result > 0
+
+
+def test_update_conference(clean_database):
+    conference_data = ConferenceUpdate(
+        id_conference=1,
+        id_serie=1,
+        id_ville=1,
+        id_organisateur=1,
+        id_editeur=1,
+        id_conference_du_workshop=1,
+        id_utilisateur=1,
+        intitule="Updated Conference",
+        date_debut=datetime.now(),
+        date_fin=datetime.now(),
+        texte_introductif="Updated Introduction",
+        image_url="http://example.com/updated_image.jpg",
+    )
+    update_conference(conference_data)
+
+
+def test_post_or_update_conference_pro():
+    categorie_soumission_1 = CategorieSoumission(
+        id_categorie_soumission=None,
+        id_conference=1, nom_categorie="New Category", nombre_maxi_pages=10,
+        font="Arial", font_size=12, type_logiciel="TypeC",
+        date_soumission=datetime.strptime("2023-03-01", "%Y-%m-%d"),
+        date_notification_acceptation=datetime.strptime(
+            "2023-03-10", "%Y-%m-%d"),
+        date_limite_envoi_version_corrigee=datetime.strptime(
+            "2023-03-20", "%Y-%m-%d")
+    )
+    categorie_soumission_2 = CategorieSoumission(
+        id_categorie_soumission=None,
+        id_conference=1, nom_categorie="New Category22", nombre_maxi_pages=102,
+        font="Arial", font_size=12, type_logiciel="TypeC",
+        date_soumission=datetime.strptime("2023-03-01", "%Y-%m-%d"),
+        date_notification_acceptation=datetime.strptime(
+            "2023-03-10", "%Y-%m-%d"),
+        date_limite_envoi_version_corrigee=datetime.strptime(
+            "2023-03-20", "%Y-%m-%d")
+    )
+    # Test data for the function
+    conference_data = ConferenceCreateOrUpdate(
+        id_conference=1,
+        id_serie=1,
+        id_ville=1,
+        id_organisateur=1,
+        id_editeur=1,
+        id_conference_du_workshop=1,
+        id_utilisateur=1,
+        intitule="Updated Conference",
+        date_debut=datetime.now(),
+        date_fin=datetime.now(),
+        texte_introductif="Updated Introduction",
+        image_url="http://example.com/updated_image.jpg",
+        serie=SerieOptional(id_serie=1, nom="Updated Serie"),
+        ville=Ville(id_ville=1, nom_ville="Updated Ville",
+                    pays=None, id_pays=2),
+        organisateur=Organisateur(
+            email="dadaa@adada", adresse='1 rue 111',
+            id_organisateur=1, nom="Updated Organisateur"),
+        editeur_conference=EditeurConference(
+            id_editeur_conference=1, nom="Updated Editeur Conference"
+        ),
+        utilisateur=None,
+        categories_soumission=[
+            categorie_soumission_1,
+            categorie_soumission_2
+        ],
+        sessions=[
+            Session(
+                id_session=None,
+                intitule="Test Session",
+                id_conference=1,
+                themes=[Theme(nom='ThemeNE', id_theme=None),
+                        Theme(nom='Theme1111', id_theme=1)],
+                responsables=[Responsable(**{"id_responsable": 1, "adresse_pro": "Adadadadada 1"},
+                                          type_responsabilite=None, utilisateur=None, id_utilisateur=1, id_type_responsabilite=1)],
+            ),
+        ],
+    )
+
+    # Test the function
+    result = post_or_update_conference_pro(conference_data)
+    assert result > 0
