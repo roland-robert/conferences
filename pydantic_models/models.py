@@ -41,12 +41,29 @@ class UtilisateurUpdate(BaseModel):
     prenom: str
 
 
+class ThemeBase(BaseModel):
+    nom: str
+
+
+class Theme(ThemeBase):
+    id_theme: int | None = None
+
+
+class ThemeUpdate(ThemeBase):
+    id_theme: int
+
+
+class ThemeOptional(ThemeBase):
+    id_theme: int | None = None
+
+
 class UtilisateurRead(BaseModel):
     id_utilisateur: int
     nom: str | None = None
     prenom: str | None = None
     email: str
     user_role: str
+    themes: list[Theme]
 
 
 class EditeurConferenceBase(BaseModel):
@@ -89,22 +106,6 @@ class Organisateur(OrganisateurBase):
 
 class OrganisateurUpdate(OrganisateurBase):
     id_organisteur: int
-
-
-class ThemeBase(BaseModel):
-    nom: str
-
-
-class Theme(ThemeBase):
-    id_theme: int | None = None
-
-
-class ThemeUpdate(ThemeBase):
-    id_theme: int
-
-
-class ThemeOptional(ThemeBase):
-    id_theme: int | None = None
 
 
 class TypeResponsabiliteBase(BaseModel):

@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException, APIRouter, status
+from fastapi import FastAPI, HTTPException, APIRouter, status, Query
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from typing import Literal
+from typing import Literal, Annotated
 import settings
 
 from pydantic_models.models import Conference, ConferenceBase, ConferenceCreateOrUpdate, ConferenceUpdate
@@ -26,14 +26,17 @@ async def get_conference_by_id(id_conference: int):
 async def get_conferences_filter(order_by: Literal['date_debut', 'date_fin'] = 'date_debut',
                                  order: Literal['asc', 'desc'] = 'asc',
                                  id_pays: int | None = None,
-                                 id_theme_list: list[int] | None = None,
+                                 id_theme_list: Annotated[list[int],
+                                                          Query(max_length=50)] = [],
                                  id_serie: int | None = None,
                                  id_editeur: int | None = None,
                                  responsable: str | None = None,  # nom ou prenom regex sur nom ou prenom contient
                                  min_date: str | None = None,  # 2023-12-09T00:00:00 UTC format
                                  max_date: str | None = None,  # 2023-12-09T00:00:00 UTC format
                                  # None ignore, true only workshops, false only not workshops
-                                 is_workshop: bool | None = None):
+                                 is_workshop: bool | None = None,
+                                 id_utilisateur: int | None = None,
+                                 ):
 
     conferences = get_conferences(
         id_pays=id_pays,
@@ -45,7 +48,8 @@ async def get_conferences_filter(order_by: Literal['date_debut', 'date_fin'] = '
         max_date=max_date,
         is_workshop=is_workshop,
         order_by=order_by,
-        order=order
+        order=order,
+        id_utilisateur=id_utilisateur,
     )
     return conferences
 

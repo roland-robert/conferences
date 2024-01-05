@@ -16,18 +16,19 @@ session = SessionLocal()
 
 
 def get_utilisateurs() -> list[UtilisateurRead]:
-    query = session.query(Utilisateur.id_utilisateur, Utilisateur.nom, Utilisateur.prenom,
-                          Utilisateur.email, Utilisateur.user_role)
+    query = session.query(Utilisateur).options(
+        joinedload(Utilisateur.themes))
     result = query.all()
     return [
         UtilisateurRead(
-            id_utilisateur=row.id_utilisateur,
-            nom=row.nom,
-            prenom=row.prenom,
-            email=row.email,
-            user_role=row.user_role
+            id_utilisateur=row_dict["id_utilisateur"],
+            nom=row_dict["nom"],
+            prenom=row_dict["prenom"],
+            email=row_dict["email"],
+            user_role=row_dict["user_role"],
+            themes=[theme.__dict__ for theme in row_dict["themes"]],
         )
-        for row in result
+        for row_dict in (row.__dict__ for row in result)
     ]
 
 

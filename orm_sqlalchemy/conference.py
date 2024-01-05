@@ -46,7 +46,7 @@ def get_conferences(
     order_by: Literal['date_debut', 'date_fin'] = 'date_debut',
     order: Literal['asc', 'desc'] = 'asc',
     id_pays: int | None = None,
-    id_theme_list: list[int] | None = None,
+    id_theme_list: list[int] = [],
     id_serie: int | None = None,
     id_editeur: int | None = None,
     responsable: str | None = None,  # nom ou prenom regex sur nom ou prenom contient
@@ -54,6 +54,8 @@ def get_conferences(
     max_date: str | None = None,  # 2023-12-09T00:00:00 UTC format
     # None ignore, true only workshops, false only not workshops
     is_workshop: bool | None = None,
+    id_utilisateur: int | None = None,
+    id_themes: list = [],
 ) -> list[Conference]:
     query = session.query(Conference).options(
         joinedload(Conference.serie),
@@ -94,11 +96,9 @@ def get_conferences(
 
     if is_workshop is not None:
         if is_workshop:
-            filters.append(Conference.categories_soumission.any(
-                CategorieSoumission.nom_categorie == 'workshop'))
+            filters.append(Conference.id_conference_du_workshop.isnot(None))
         else:
-            filters.append(~Conference.categories_soumission.any(
-                CategorieSoumission.nom_categorie == 'workshop'))
+            filters.append(Conference.id_conference_du_workshop.is_(None))
 
     query = query.filter(and_(*filters))
 
@@ -108,6 +108,9 @@ def get_conferences(
     elif order_by == 'date_fin':
         query = query.order_by(Conference.date_fin.desc(
         ) if order == 'desc' else Conference.date_fin.asc())
+
+    if id_utilisateur is not None:
+        filters.append(Conference.id_utilisateur == id_utilisateur)
 
     conferences: list[Conference] = query.all()
     return conferences

@@ -19,6 +19,7 @@ class Utilisateur(Base):
     password_hash = Column(String(128))
     password_salt = Column(String(50))
     user_role = Column(String(24))  # user, admin
+    themes = relationship('Theme', secondary='lien_utilisateur_theme')
 
 
 class EditeurConference(Base):
@@ -51,7 +52,7 @@ class Theme(Base):
     sessions = relationship(
         'Session', secondary='lien_session_theme')
     utilisateurs = relationship(
-        'Utilisateur', secondary='lien_utilisateur_theme')
+        'Utilisateur', secondary='lien_utilisateur_theme', overlaps="themes")
 
 
 class TypeResponsabilite(Base):
