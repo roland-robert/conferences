@@ -18,7 +18,6 @@ function ConferenceCard({ conference }: ConferenceCardProps) {
   const [style, setStyle] = React.useState({ width: '24.5%', margin: '.25%' } as React.CSSProperties);
 
   const handleClick = () => {
-    console.log(`ConferenceCard ${conference.id} clicked`);
     navigate(`/conference`, { state: { conference: conference } });
   }
 
@@ -62,7 +61,7 @@ function ConferenceCard({ conference }: ConferenceCardProps) {
   return (
 
     <Card className='conf-card' style={style} onClick={handleClick}>
-      <Card.Img variant="top" src={require(`../assets/${conference.image}`)} style={{ objectFit: 'cover', aspectRatio: 3 / 2 }} />
+      <Card.Img variant="top" src={conference.image_url??''} style={{ objectFit: 'cover', aspectRatio: 3 / 2 }} />
       <Card.Body>
         <Card.Title>{conference.intitule}</Card.Title>
         <Card.Text>{conference.texteIntroductif}</Card.Text>
@@ -83,9 +82,9 @@ function ConferenceCard({ conference }: ConferenceCardProps) {
           <FaCircleInfo className='me-2' />
           {conference.isWorkshop ? "Workshop" : "Conférence"}
         </div>
-        <div >
-          {themes.map((theme) => (
-            <CustomTag color={theme.color} text={theme.nom} />
+        <div className='mt-2'>
+          {themes.map((theme, index) => (
+            <CustomTag key={index} color={theme.color} text={theme.nom} />
           ))}
         </div>
       </div>

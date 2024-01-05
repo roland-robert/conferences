@@ -14,7 +14,7 @@ function ProfileView({ user }: ProfileViewProps) {
             <div className='user-container'>
                 <AppAvatar userName={user.prenom!} userImage='https://www.w3schools.com/howto/img_avatar.png' size={200} />
                 <h2>{user.prenom} {user.nom}</h2>
-                <p className='mail'>{user.mail}</p>
+                <p className='mail'>{user.email}</p>
 
             </div>
         </>

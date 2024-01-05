@@ -2,8 +2,8 @@ import Avatar from '@mui/material/Avatar';
 import React from 'react';
 
 interface AppAvatarProps {
-    userName: string;
-    userImage: string;
+    userName?: string;
+    userImage?: string;
     size?: number;
 }
 

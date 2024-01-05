@@ -1,9 +1,13 @@
+import { Theme } from "@mui/material";
+import { Conference, ConferenceType, Serie } from "./Conference";
+import { Pays } from "./Localisation";
+
 export class Filters {
-    pays?: { value: string, label: string };
-    serie?: { value: string, label: string };
-    editeur?: { value: string, label: string };
-    themes?: { value: string, label: string }[];
-    conferenceType?: { value: string, label: string };
+    pays?: Pays;
+    serie?: Serie;
+    editeur?: string;
+    themes?: Theme[];
+    conferenceType?: ConferenceType;
 
     constructor({ pays, serie, editeur, themes, conferenceType }: Filters) {
         this.pays = pays;
@@ -12,5 +16,4 @@ export class Filters {
         this.themes = themes;
         this.conferenceType = conferenceType;
     }
-
 }

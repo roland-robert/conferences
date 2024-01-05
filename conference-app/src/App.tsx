@@ -22,23 +22,20 @@ function App() {
   const [filters, setFilters] = useState<Filters>(new Filters({}));
   const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    console.log(filters);
-  }, [filters]);
 
-  return (  
+  return (
     <div>
       <BrowserRouter>
         <CustomAppBar />
         <FiltersModal filters={filters} setFilters={setFilters} show={showModal} onHide={() => setShowModal(false)} />
         <div className='page'>
           <Routes >
-            <Route path="/" element={<MainView openFilters={() => setShowModal(true)} />} />
+            <Route path="/" element={<MainView openFilters={() => setShowModal(true)} filters={filters} />} />
             <Route path="/conference" element={<ConferenceView />} />
             <Route path="/login" element={<LoginView />} />
             <Route path="/submit" element={<SubmitConferenceView />} />
             <Route path="/submissions" element={<SubmissionsView />} />
-            <Route path="/profile" element={<ProfileView user={new User({ nom: 'Doe', prenom: 'John', mail: 'john.doe@gmail.com' })} />} />
+            <Route path="/profile" element={<ProfileView user={new User({ nom: 'Doe', prenom: 'John', email: 'john.doe@gmail.com' })} />} />
             <Route path="/about" element={<AboutView />} />
 
           </Routes>

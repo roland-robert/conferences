@@ -28,7 +28,7 @@ export default function ConferenceInformation({ conference }: ConferenceInformat
                     {showVille &&
                         <div>
                             <FaLocationDot className='me-2' />
-                            <span className="conf-info-label">Localisations:</span>{conference.ville?.nom} - {conference.ville?.pays?.nom}
+                            <span className="conf-info-label">Localisation:</span>{conference.ville?.nom} - {conference.ville?.pays?.nom}
                         </div>}
                     <div>
                         <FaCircleInfo className='me-2' />

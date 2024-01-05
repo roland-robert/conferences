@@ -1,10 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Filters } from '../models/Filters';
 import { Button, Modal, Offcanvas } from 'react-bootstrap';
-import { allCountries, mockSeries, mockThemes, mockTypes } from '../models/mockData';
-import { FaLocationDot, FaList, FaUser, FaPalette, FaCircleInfo  } from "react-icons/fa6";
+import { FaLocationDot, FaList, FaUser, FaPalette, FaCircleInfo, FaCalendarDays  } from "react-icons/fa6";
 import Select from 'react-select';
+import { Pays } from '../models/Localisation';
+import { ConferenceType, Serie } from '../models/Conference';
+import { Theme } from '../models/Session';
+import { API } from '../api/api';
+
+
+
 
 
 interface FiltersModalProps {
@@ -15,6 +21,27 @@ interface FiltersModalProps {
 }
 
 export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModalProps) {
+
+    const [countries, setCountries] = useState<Pays[]>([]);
+    const [series, setSeries] = useState<Serie[]>([]);
+    const [themes, setThemes] = useState<Theme[]>([]);
+    const [currentFilters, setCurrentFilters] = useState<Filters>(filters);
+
+    useEffect(() => {
+        //TODO: redux?
+        if (!show) return;
+        API.getCountries(setCountries);
+        API.getSeries(setSeries);
+        API.getThemes(setThemes);
+    }, [show]);
+
+
+    function onApply() {
+        setFilters(currentFilters);
+        onHide();
+    }
+
+
     return <Offcanvas
         show={show}
         placement='end'
@@ -30,54 +57,63 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
             <FilterSelectWithLabel
                 label="Pays"
                 icon={<FaLocationDot />}
-                value={filters.pays}
-                onChange={(value) => setFilters(new Filters({ ...filters, pays: value }))}
-                options={allCountries.map(
-                    (item) => ({ value: item!.id!.toString(), label: item!.nom! })
-                )}
+                value={currentFilters.pays}
+                onChange={(value) => setCurrentFilters(new Filters({ ...currentFilters, pays: value }))}
+                options={countries}
+                optionMapper={(item) => (item === undefined ? undefined : { value: item!.id!.toString(), label: item!.nom! })}
             />
 
             <FilterSelectWithLabel
                 label="Série"
                 icon={<FaList />}
-                value={filters.serie}
-                onChange={(value) => setFilters(new Filters({ ...filters, serie: value }))}
-                options={mockSeries.map(
-                    (item) => ({ value: item.id!.toString(), label: item.nom! })
-                )}
+                value={currentFilters.serie}
+                onChange={(value) => setCurrentFilters(new Filters({ ...currentFilters, serie: value }))}
+                options={series}
+                optionMapper={(item) => (item === undefined ? undefined : { value: item!.id!.toString(), label: item!.nom! })}
             />
 
             <FilterSelectWithLabel
                 label="Thème"
-                icon = {<FaPalette />}
+                icon={<FaPalette />}
                 isMulti={true}
-                value={filters.themes}
-                onChange={(value) => setFilters(new Filters({ ...filters, themes: value }))}
-                options={mockThemes.map(
-                    (item) => ({ value: item.id!.toString(), label: item.nom! })
-                )}
+                value={currentFilters.themes}
+                onChange={(value) => setCurrentFilters(new Filters({ ...currentFilters, themes: value }))}
+                options={themes}
+                optionMapper={(item) => (item === undefined ? undefined : { value: item!.id!.toString(), label: item!.nom! })}
             />
 
             <FilterSelectWithLabel
                 label="Type"
-                icon = {<FaCircleInfo  />}
-                value={filters.conferenceType}
-                onChange={(value) => setFilters(new Filters({ ...filters, conferenceType: value }))}
-                options={mockTypes.map(
-                    (item) => ({ value: item.id!.toString(), label: item.nom! })
-                )}
+                icon={<FaCircleInfo />}
+                value={currentFilters.conferenceType}
+                onChange={(value) => setCurrentFilters(new Filters({ ...currentFilters, conferenceType: value }))}
+                options={[ConferenceType.CONFERENCE, ConferenceType.WORKSHOP]}
+                optionMapper={(item) => (item === undefined ? undefined : { value: item!.toString(), label: item === ConferenceType.CONFERENCE ? 'Conférence' : 'Workshop' })}
             />
 
-            <FilterSelectWithLabel
+            <FilterDateWithLabel
+                label="Date Min"
+                value={new Date('2021-01-01')}
+                onChange={()=>{}}
+            />
+
+            <FilterDateWithLabel
+                label="Date Max"
+                value={new Date()}
+                onChange={()=>{}}
+            />
+
+
+            {/* <FilterSelectWithLabel
                 label="Editeur"
-                icon= {<FaUser /> }
-                value={filters.conferenceType}
-                onChange={(value) => setFilters(new Filters({ ...filters, conferenceType: value }))}
+                icon={<FaUser />}
+                value={currentFilters.conferenceType}
+                onChange={(value) => setCurrentFilters(new Filters({ ...currentFilters, conferenceType: value }))}
                 options={mockTypes.map(
                     (item) => ({ value: item.id!.toString(), label: item.nom! })
                 )}
-            />
-            <Button variant="primary">Appliquer</Button>
+            /> */}
+            <Button variant="primary" onClick={onApply}>Appliquer</Button>
 
         </Offcanvas.Body>
     </Offcanvas>
@@ -87,14 +123,31 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
 interface FilterSelectWithLabelProps {
     label: string;
     icon?: any;
-    options: { value: string, label: string }[];
+    options: any[];
+    optionMapper: (item: any) => { value: string, label: string } | undefined;
     isMulti?: boolean;
     isSearchable?: boolean;
-    value?: { value: string, label: string } | { value: string, label: string }[];
-    onChange?: (value: any) => void;
+    value?: any;
+    onChange: (value: any) => void;
 }
 
-function FilterSelectWithLabel({ label, icon, options, isMulti, onChange, value }: FilterSelectWithLabelProps) {
+function FilterSelectWithLabel({ label, icon, options, optionMapper, isMulti, onChange, value }: FilterSelectWithLabelProps) {
+
+    function handleChange(e: any) {
+        if (e == null || e == undefined) {
+            onChange(undefined);
+            return;
+        }
+        if (isMulti) {
+            var selectedOptions = e.map((e: any) => options.find((option) => optionMapper(option)?.value == e.value)!);
+            onChange(selectedOptions);
+            return;
+        } else {
+            var option = options.find((option) => optionMapper(option)?.value == e.value)!;
+            onChange(option);
+            return;
+        }
+    }
     return (
         <>
             <div className="mb-3">
@@ -106,10 +159,32 @@ function FilterSelectWithLabel({ label, icon, options, isMulti, onChange, value 
                 <Select
                     isMulti={isMulti}
                     isClearable={true}
-                    onChange={onChange}
-                    defaultValue={value}
-                    options={options}
+                    onChange={handleChange}
+                    defaultValue={isMulti ? value?.map((item: any) => optionMapper(item)) : optionMapper(value)}
+                    options={options.map(optionMapper)}
                 />
+            </div>
+        </>
+    )
+}
+
+interface FilterDateWithLabelProps {
+    label: string;
+    value?: Date;
+    onChange: (value: Date | Date[]) => void;
+}
+
+function FilterDateWithLabel({ label, onChange, value }: FilterDateWithLabelProps) {
+    return (
+        <>
+            <div className="mb-3">
+                <div className='d-flex mb-1'>
+                    <div className='me-2'>{<FaCalendarDays /> }</div>
+                    <label>{label}</label>
+                </div>
+
+                <input aria-label="Date" type="date" value={value?.toISOString().substring(0,10)}/>
+
             </div>
         </>
     )

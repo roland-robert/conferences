@@ -1,42 +1,79 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Conference } from '../models/Conference';
 import { useLocation } from 'react-router-dom';
 import { Row, Col, Image, Carousel, Card } from 'react-bootstrap';
 import { useState } from 'react';
 import ConferenceInformation from '../utils/ConferenceInformation';
 import '../styles/ConferenceView.css';
+import { privateQuery } from '../services';
+import { Session } from '../models/Session';
+import { CustomTag } from '../utils/CustomTag';
+import { AppAvatar } from '../utils/Avatar';
 
 
 function ConferenceView(props: any) {
     const location = useLocation();
-    const conference = location.state.conference as Conference;
-
+    const [conference, setConference] = useState<Conference>(location.state.conference);
     const [index, setIndex] = useState(0);
+
+    const getConference = () => {
+        privateQuery("GET", `/conference/${conference.id}`)
+            .then((events: any) => {
+                var conference = Conference.fromJSON(events);
+                setConference(conference);
+            })
+            .catch((err: any) => {
+                console.log(err);
+            });
+    };
+
+    useEffect(() => {
+        getConference();
+    }, []);
 
     const handleSelect = (selectedIndex: any) => {
         setIndex(selectedIndex);
     };
 
-    function ExampleCarouselImage(props: any) {
+
+    const SessionCarouselItem = React.forwardRef((props: { session: Session }, ref: any) => {
+        const session = props.session;
         return (
-            <img
-                className="d-block align-self-center mx-auto justify-content-center"
-                src="https://placehold.co/600x200"
-                alt={props.text}
-            />
-        );
-    }
+            <Carousel.Item ref={ref} {...props} >
+                <div className='session-carousel-item'>
+                    <h3>{session.intitule}</h3>
+                    <div>
+                        {session.responsables!.map((responsable, index) => (
+                            <div key={index} className='d-flex'>
+                                <span className='conf-info-label'>{responsable.typeResponsabilite?.nom}:</span>
+                                <span > {responsable.utilisateur?.nom} {responsable.utilisateur?.prenom} </span>
+                            </div>
+                        ))}
+                    </div>
 
-    console.log(props);
+                    <Carousel.Caption>
+                        <div>
+                            {session.themes?.map((theme, index) => (
+                                <CustomTag key={index} color={theme.color} text={theme.nom} />
+                            ))}
+                        </div>
 
-    
+                    </Carousel.Caption>
+
+                </div>
+
+            </Carousel.Item>
+        )
+    });
+
+
+
     return (
-        <div>
+        <div style={{ maxWidth: 1200, margin: 'auto' }}>
             <Row>
+                <h2>{conference.intitule}</h2>
                 <Col xs={6} md={8}>
-                    <h1>ConferenceView</h1>
-                    <img src={require(`../assets/${conference.image}`)} alt="conference" width='50%' />
-                    <h2>{conference.intitule}</h2>
+                    <img src={conference.image_url} alt="conference" className='illustration' />
                     <div>
                         {conference.texteIntroductif}
                     </div>
@@ -45,32 +82,14 @@ function ConferenceView(props: any) {
                     <ConferenceInformation conference={conference} />
                 </Col>
             </Row>
+            <h2>Sessions</h2>
             <div>
                 <Carousel activeIndex={index} onSelect={handleSelect} variant='dark'>
-                    <Carousel.Item >
-                        <ExampleCarouselImage text="First slide" />
-                        <Carousel.Caption>
-                            <h3>First slide label</h3>
-                            <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-                        </Carousel.Caption>
-
-                    </Carousel.Item>
-                    <Carousel.Item>
-                        <ExampleCarouselImage text="Second slide" />
-                        <Carousel.Caption>
-                            <h3>Second slide label</h3>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                        </Carousel.Caption>
-                    </Carousel.Item>
-                    <Carousel.Item>
-                        <ExampleCarouselImage text="Third slide" />
-                        <Carousel.Caption>
-                            <h3>Third slide label</h3>
-                            <p>
-                                Praesent commodo cursus magna, vel scelerisque nisl consectetur.
-                            </p>
-                        </Carousel.Caption>
-                    </Carousel.Item>
+                    {conference?.sessions?.map((session: any, index: any) => {
+                        return (
+                            <SessionCarouselItem key={index} session={session} />
+                        )
+                    })}
                 </Carousel>
             </div>
         </div>

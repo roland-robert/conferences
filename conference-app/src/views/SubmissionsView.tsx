@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Conference } from '../models/Conference';
-import { mockSubmissions } from '../models/mockData';
 import ConferenceCard from '../utils/ConferenceCard';
 import { Button } from 'react-bootstrap';
 import { FaCirclePlus } from "react-icons/fa6";
@@ -12,7 +11,7 @@ function SubmissionsView() {
     const [submissions, setSubmissions] = React.useState<Conference[]>([]);
     //TODO: get submissions from backend
     useEffect(() => {
-        var data = mockSubmissions;
+        var data:Conference[] = [];
         setSubmissions(data);
     }, []);
 
@@ -27,7 +26,7 @@ function SubmissionsView() {
             {submissions.length == 0 ?
                 <p>Vous n'avez pas encore soumis de contribution</p> :
                 <div className='list-container' >
-                    {mockSubmissions.map((conference) => (
+                    {submissions.map((conference) => (
                         <ConferenceCard conference={conference} />
                     ))}
                 </div>

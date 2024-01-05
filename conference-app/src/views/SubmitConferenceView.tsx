@@ -1,22 +1,54 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
-import { allCountries, allCities, mockSeries } from '../models/mockData';
 import { Conference } from '../models/Conference';
+import { API } from '../api/api';
+import { Pays, Ville } from '../models/Localisation';
 
 
 
 
 function SubmitConferenceView() {
-    const [pays, setPays] = useState(allCities[0].pays);
 
-    const [conference, setConference] = useState<Conference>(new Conference({
-        ville: allCities[0],
-        serie: mockSeries[0],
-        organisateur: undefined, //par défaut l'utilisateur connecté
-        intitule: '',
-        dateDebut: new Date(),
-        dateFin: new Date(),
-    }));
+    const [countries, setCountries] = useState<Pays[]>([]);
+    const [cities, setCities] = useState<Ville[]>([]);
+    const [series, setSeries] = useState<any[]>([]);
+
+    const [pays, setPays] = useState<Pays | undefined>(undefined);
+
+    const [conference, setConference] = useState<Conference | undefined>(undefined);
+
+    async function initData() {
+        await API.getCountries(setCountries);
+        await API.getCities(setCities);
+        await API.getSeries(setSeries);
+
+    }
+
+    function initConference() {
+        var defaultCity = cities.find((_city) => _city!.nom === 'Paris') ?? cities[0];
+        setPays(defaultCity!.pays);
+        setConference(new Conference({
+            ville: defaultCity,
+            serie: series[0],
+            organisateur: undefined, //par défaut l'utilisateur connecté
+            intitule: '',
+            dateDebut: new Date(),
+            dateFin: new Date(),
+        }));
+    }
+
+    useEffect(() => {
+        initData();
+    }
+        , []);
+
+    useEffect(() => {
+        if (conference !== undefined) return;
+        if (cities.length == 0 || series.length == 0) return;
+        initConference();
+    }
+        , [cities, series]);
+
 
     function handleTitleChange(e: any) {
         setConference(new Conference({
@@ -28,7 +60,7 @@ function SubmitConferenceView() {
     function handleImageChange(e: any) {
         setConference(new Conference({
             ...conference,
-            image: e.target.value,
+            image_url: e.target.value,
         }));
     }
 
@@ -42,12 +74,12 @@ function SubmitConferenceView() {
 
 
     function handleCountryChange(e: any) {
-        var country = allCountries.find((country) => country!.id == e.target.value)!;
+        var country = countries.find((country) => country!.id == e.target.value)!;
         setPays(country);
     }
 
     function handleCityChange(e: any) {
-        var city = allCities.find((city) => city.id == e.target.value)!;
+        var city = cities.find((city) => city.id == e.target.value)!;
         setConference(new Conference({
             ...conference,
             ville: city,
@@ -55,16 +87,20 @@ function SubmitConferenceView() {
     }
 
     function handleSerieChange(e: any) {
-        var serie = mockSeries.find((_serie) => _serie.id == e.target.value)!;
+        var serie = series.find((_serie) => _serie.id == e.target.value)!;
         setConference(new Conference({
             ...conference,
             serie: serie,
         }));
     }
 
+    if (cities.length == 0 || series.length == 0 || pays == undefined || conference == undefined) {
+        //TODO: loading
+        return <></>;
+    }
+
     return (
         <Container >
-            {/* Intitule */}
             <Form.Group onChange={handleTitleChange} className="mb-3">
                 <Form.Label>Intitulé</Form.Label>
                 <Form.Control placeholder="Intitulé" />
@@ -78,11 +114,11 @@ function SubmitConferenceView() {
             <Form.Group className="mb-3">
                 <Form.Label>Pays</Form.Label>
                 <Form.Select onChange={handleCountryChange} value={pays!.id}>
-                    {allCountries.map((_pays) => (<option key={_pays!.id} value={_pays!.id}>{_pays!.nom}</option>))}
+                    {countries.map((_pays) => (<option key={_pays!.id} value={_pays!.id}>{_pays!.nom}</option>))}
                 </Form.Select>
                 <Form.Label>Ville</Form.Label>
                 <Form.Select onChange={handleCityChange} value={conference.ville!.id}>
-                    {allCities.filter((_ville) => _ville!.pays!.id === pays!.id).map((_ville) => (<option key={_ville.id} value={_ville.id}>{_ville.nom}</option>))}
+                    {cities.filter((_ville) => _ville!.pays!.id === pays!.id).map((_ville) => (<option key={_ville.id} value={_ville.id}>{_ville.nom}</option>))}
                 </Form.Select>
             </Form.Group>
             {/* Description */}
@@ -94,10 +130,11 @@ function SubmitConferenceView() {
             <Form.Group className="mb-3">
                 <Form.Label>Série</Form.Label>
                 <Form.Select onChange={handleSerieChange} value={conference.serie!.id}>
-                    {mockSeries.map((_serie) => (<option key={_serie.id} value={_serie.id}>{_serie.nom}</option>))}
+                    {series.map((_serie) => (<option key={_serie.id} value={_serie.id}>{_serie.nom}</option>))}
                 </Form.Select>
 
             </Form.Group>
+
 
         </Container>
     );
