@@ -2,10 +2,11 @@ from fastapi import status, HTTPException
 from sqlalchemy import create_engine, select, insert
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import NoResultFound
+from orm_sqlalchemy.theme import create_theme
 import settings
 from orm_sqlalchemy.models import Utilisateur, TypeResponsabilite, Responsable
 from passlib.context import CryptContext
-from pydantic_models.models import ResponsableBase, ResponsableUpdate, TypeResponsabiliteBase, UtilisateurCreate, UtilisateurRead, UtilisateurUpdate
+from pydantic_models.models import ResponsableBase, ResponsableUpdate, ThemeOptional, TypeResponsabiliteBase, UtilisateurCreate, UtilisateurRead, UtilisateurUpdate
 from orm_sqlalchemy.does_exist import *
 from orm_sqlalchemy.secondary_links import *
 from api.user import get_password_hash
@@ -71,3 +72,16 @@ def update_utilisateur(utilisateur_update: UtilisateurUpdate):
         setattr(existing_utilisateur, key, value)
 
     session.commit()
+
+
+def create_utilisateur_and_link_to_themes(utilisateur: UtilisateurCreate, themes: list[ThemeOptional] = []):
+    id_utilisateur = create_utilisateur(utilisateur=utilisateur)
+    id_themes = []
+    for theme in themes:
+        if theme.id_theme:
+            id_themes.append(theme.id_theme)
+        else:
+            id_themes.append(create_theme(ThemeBase(nom=theme.nom)))
+    for id_theme in id_themes:
+        link_user_and_theme(id_theme=id_theme, id_utilisateur=id_utilisateur)
+    return id_utilisateur
