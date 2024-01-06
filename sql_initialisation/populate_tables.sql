@@ -5,7 +5,7 @@ INSERT INTO pays (nom) VALUES
 INSERT INTO utilisateur (nom, prenom, email, password_hash, password_salt, user_role) VALUES
     ('John', 'Doe', 'john.doe@example.com', 'hash123', 'salt123', 'user'),
     ('Jane', 'Doe', 'jane.doe@example.com', 'hash456', 'salt456', 'user'),
-    ('Walter', 'White', 'admin@admin.com', '$2b$12$rhbqFlH659WMx.ImtCN1OOuULA3Dhg2ji9tmSBb492e8L1wV0lb6q', 'salt456', 'admin'),
+    ('Walter', 'White', 'admin@admin.com', '$2b$12$e2fRaFTVakhTPsPBvKY2r.PPeaU9TR7FrW17K8rOmSoi0LXxPg5JS', 'salt456', 'admin'),
     ('Jean', 'Dupont', 'jdp@example.com', 'hash123', 'salt123', 'user'),
     ('Jeanne', 'Dupont', 'jeannedp@example.com', 'hash456', 'salt456', 'user');
 

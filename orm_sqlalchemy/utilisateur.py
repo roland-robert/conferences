@@ -10,10 +10,19 @@ from pydantic_models.models import ResponsableBase, ResponsableUpdate, ThemeOpti
 from orm_sqlalchemy.does_exist import *
 from orm_sqlalchemy.secondary_links import *
 from api.user import get_password_hash
+import random
 
 engine = create_engine(settings.POSTGRES_URI)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 session = SessionLocal()
+
+
+def create_salt():
+    ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    chars = []
+    for i in range(16):
+        chars.append(random.choice(ALPHABET))
+    return "".join(chars)
 
 
 def get_utilisateurs() -> list[UtilisateurRead]:
@@ -34,8 +43,8 @@ def get_utilisateurs() -> list[UtilisateurRead]:
 
 
 def create_utilisateur(utilisateur: UtilisateurCreate):
-    password_hash = get_password_hash(utilisateur.password)
-    password_salt = '123'  # TODO
+    password_salt = create_salt()
+    password_hash = get_password_hash(utilisateur.password, password_salt)
     user_dict = {
         "nom": utilisateur.nom,
         "prenom": utilisateur.prenom,

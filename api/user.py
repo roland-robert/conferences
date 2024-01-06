@@ -41,12 +41,12 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+def verify_password(plain_password, hashed_password, salt=""):
+    return pwd_context.verify(salt + plain_password, hashed_password)
 
 
-def get_password_hash(password):
-    hashed_pw = pwd_context.hash(password)
+def get_password_hash(password, salt=""):
+    hashed_pw = pwd_context.hash(salt + password)
     return hashed_pw
 
 
@@ -54,7 +54,7 @@ def authenticate_user(email: str, password: str):
     user = get_user(email)
     if not user:
         return False
-    if not verify_password(password, user.password_hash):
+    if not verify_password(password, str(user.password_hash), str(user.password_salt)):
         return False
     return user
 
