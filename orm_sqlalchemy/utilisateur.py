@@ -83,6 +83,20 @@ def update_utilisateur(utilisateur_update: UtilisateurUpdate):
     session.commit()
 
 
+def update_utilisateur_and_link_to_themes(utilisateur: UtilisateurUpdate, themes: list[ThemeOptional] = []):
+    id_utilisateur = utilisateur.id_utilisateur
+    update_utilisateur(utilisateur_update=utilisateur)
+    id_themes = []
+    for theme in themes:
+        if theme.id_theme:
+            id_themes.append(theme.id_theme)
+        else:
+            id_themes.append(create_theme(ThemeBase(nom=theme.nom)))
+    for id_theme in id_themes:
+        link_user_and_theme(id_theme=id_theme, id_utilisateur=id_utilisateur)
+    return id_utilisateur
+
+
 def create_utilisateur_and_link_to_themes(utilisateur: UtilisateurCreate, themes: list[ThemeOptional] = []):
     id_utilisateur = create_utilisateur(utilisateur=utilisateur)
     id_themes = []
