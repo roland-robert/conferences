@@ -55,7 +55,6 @@ def get_conferences(
     # None ignore, true only workshops, false only not workshops
     is_workshop: bool | None = None,
     id_utilisateur: int | None = None,
-    id_themes: list = [],
 ) -> list[Conference]:
     query = session.query(Conference).options(
         joinedload(Conference.serie),
@@ -100,6 +99,9 @@ def get_conferences(
         else:
             filters.append(Conference.id_conference_du_workshop.is_(None))
 
+    if id_utilisateur is not None:
+        filters.append(Conference.id_utilisateur == id_utilisateur)
+
     query = query.filter(and_(*filters))
 
     if order_by == 'date_debut':
@@ -108,9 +110,6 @@ def get_conferences(
     elif order_by == 'date_fin':
         query = query.order_by(Conference.date_fin.desc(
         ) if order == 'desc' else Conference.date_fin.asc())
-
-    if id_utilisateur is not None:
-        filters.append(Conference.id_utilisateur == id_utilisateur)
 
     conferences: list[Conference] = query.all()
     return conferences
