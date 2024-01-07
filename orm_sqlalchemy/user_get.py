@@ -14,9 +14,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 session = SessionLocal()
 
 # made different file to avoid cyclic imports
+
+
 def get_user(email: str | None) -> Utilisateur | None:
     utilisateurs: list[Utilisateur] = session.query(
-        Utilisateur).filter(Utilisateur.email == email).all()
+        Utilisateur).options(joinedload(Utilisateur.themes)).filter(Utilisateur.email == email).all()
     if len(utilisateurs) == 0:
         return None
     if len(utilisateurs) > 1:

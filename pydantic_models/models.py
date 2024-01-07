@@ -66,6 +66,10 @@ class UtilisateurRead(BaseModel):
     themes: list[Theme]
 
 
+class UtilisateurMe(Utilisateur):
+    themes: list[Theme]
+
+
 class EditeurConferenceBase(BaseModel):
     nom: str
 

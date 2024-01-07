@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
 import settings
-from pydantic_models.models import Utilisateur as PydanticUtilisateur
+from pydantic_models.models import Utilisateur as PydanticUtilisateur, UtilisateurMe
 from orm_sqlalchemy.models import Organisateur
 from orm_sqlalchemy.user_get import get_user
 from passlib.context import CryptContext
@@ -114,7 +114,7 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/user/me/", response_model=PydanticUtilisateur)
+@router.get("/user/me/", response_model=UtilisateurMe)
 async def read_users_me(
     current_user: Annotated[PydanticUtilisateur,
                             Depends(get_current_active_user)]
