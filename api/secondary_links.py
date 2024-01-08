@@ -24,22 +24,22 @@ def link_responsable_session(id_responsable: int, id_session: int):
     link_session_and_responsable(id_session, id_responsable)
 
 
-@router.delete("/delete_session_theme/", response_model=int)
+@router.delete("/delete_session_theme/")
 def delete_session_theme_endpoint(id_session: int, id_theme: int):
     delete_session_theme(id_session, id_theme)
 
 
-@router.delete("/delete_user_theme/", response_model=int, summary='Deletes link between user and theme')
+@router.delete("/delete_user_theme/", summary='Deletes link between user and theme')
 def delete_user_theme_endpoint(id_utilisateur: int, id_theme: int):
     """Deletes link between user and theme"""
     delete_user_theme(id_utilisateur, id_theme)
 
 
-@router.delete("/delete_conference_responsable/", response_model=int)
+@router.delete("/delete_conference_responsable/")
 def delete_conference_responsable_endpoint(id_conference: int, id_responsable: int):
     delete_conference_responsable(id_conference, id_responsable)
 
 
-@router.delete("/delete_responsable_session/", response_model=int)
+@router.delete("/delete_responsable_session/")
 def delete_responsable_session_endpoint(id_responsable: int, id_session: int):
     delete_responsable_session(id_responsable, id_session)
