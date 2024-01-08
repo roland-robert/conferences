@@ -36,6 +36,7 @@ async def get_conferences_filter(order_by: Literal['date_debut', 'date_fin'] = '
                                  # None ignore, true only workshops, false only not workshops
                                  is_workshop: bool | None = None,
                                  id_utilisateur: int | None = None,
+                                 id_conference_du_workshop: int | None = None,
                                  ):
 
     conferences = get_conferences(
@@ -50,6 +51,7 @@ async def get_conferences_filter(order_by: Literal['date_debut', 'date_fin'] = '
         order_by=order_by,
         order=order,
         id_utilisateur=id_utilisateur,
+        id_conference_du_workshop=id_conference_du_workshop,
     )
     return conferences
 
