@@ -118,3 +118,8 @@ def create_or_update_responsable_full(responsable: ResponsablePydantic) -> int:
         return responsable.id_responsable
 
     return create_responsable(ResponsableBase(**data))
+
+
+def get_type_responsabilite() -> list[TypeResponsabilite]:
+    query = session.query(TypeResponsabilite)
+    return query.all()

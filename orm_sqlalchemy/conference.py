@@ -55,6 +55,7 @@ def get_conferences(
     # None ignore, true only workshops, false only not workshops
     is_workshop: bool | None = None,
     id_utilisateur: int | None = None,
+    id_conference_du_workshop: int | None = None,
 ) -> list[Conference]:
     query = session.query(Conference).options(
         joinedload(Conference.serie),
@@ -101,6 +102,10 @@ def get_conferences(
 
     if id_utilisateur is not None:
         filters.append(Conference.id_utilisateur == id_utilisateur)
+
+    if id_conference_du_workshop:
+        filters.append(Conference.id_conference_du_workshop ==
+                       id_conference_du_workshop)
 
     query = query.filter(and_(*filters))
 
@@ -225,3 +230,7 @@ def post_or_update_conference_pro(conference: ConferenceCreateOrUpdate) -> int:
             data.pop("id_categorie_soumission", None)
             create_categorie_soumission(CategorieSoumissionBase(**data))
     return conference_id
+
+
+def get_workshop():
+    pass

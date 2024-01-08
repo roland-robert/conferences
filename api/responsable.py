@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, APIRouter
 from typing import List
-from pydantic_models.models import Responsable, ResponsableBase, ResponsableUpdate, TypeResponsabiliteBase
-from orm_sqlalchemy.responsable import create_responsable, update_responsable, get_responsables, create_type_responsabilite
+from pydantic_models.models import Responsable, ResponsableBase, ResponsableUpdate, TypeResponsabiliteBase, TypeResponsabilite
+from orm_sqlalchemy.responsable import create_responsable, get_type_responsabilite, update_responsable, get_responsables, create_type_responsabilite
 from sqlalchemy.exc import NoResultFound
 import settings
 
@@ -12,6 +12,11 @@ router = APIRouter(tags=["Responsable"])
 def read_responsables():
     responsables = get_responsables()
     return responsables
+
+
+@router.get("/types_responsabilite/", response_model=List[TypeResponsabilite])
+def get_types_responsabilite():
+    return get_type_responsabilite()
 
 
 @router.post("/type-responsabilites/", response_model=int)
