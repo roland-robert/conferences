@@ -13,8 +13,7 @@ import { AppAvatar } from './Avatar';
 import { FaGlobe } from "react-icons/fa6";
 
 
-const pages = [{ name: 'Appels à communication', link: '/' }, { name: 'Soumissions', link: '/submissions' }, { name: 'A propos', link: '/about' }];
-const settings = [{ name: 'Profil', link: '/profile' }, { name: 'Déconnexion', link: '/login' }];
+
 
 function CustomAppBar() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -30,10 +29,24 @@ function CustomAppBar() {
 
   const handlePageChange = (link: string) => {
     return () => {
+      if (link === '/login') {
+        localStorage.clear();
+      }
       navigate(link);
     }
   }
+
+  const token = localStorage.getItem('token');
+  const isSignedIn = token !== null;
   
+  var pages = [{ name: 'Appel à communication', link: '/' }];
+  if (isSignedIn) {
+    pages = [...pages, { name: 'Mes Contributions', link: '/submissions' }, { name: 'Soumettre une Contribution', link: '/submit' }];
+  }
+  pages = [...pages, { name: 'A propos', link: '/about' }];
+  
+  const settings = [{ name: 'Profil', link: '/profile' }, { name: 'Déconnexion', link: '/login' }];
+
 
   return (
     <AppBar style={{ background: '#2E3B55' }} position="static">
@@ -45,7 +58,7 @@ function CustomAppBar() {
             noWrap
             component="a"
             sx={{
-              ml:1,
+              ml: 1,
               mr: 2,
               display: 'flex',
               fontWeight: 700,
@@ -67,36 +80,45 @@ function CustomAppBar() {
               </Button>
             ))}
           </Box>
-
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <AppAvatar userName="John Doe" userImage="https://www.w3schools.com/howto/img_avatar.png" size={50} />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
+          {!isSignedIn &&
+            <Button
+              onClick={handlePageChange('/login')}
+              sx={{ my: 2, color: 'white', display: 'block' }}
             >
-              {settings.map((setting, index) => (
-                <MenuItem key={index} onClick={handlePageChange(setting.link)}>
-                  <Typography textAlign="center">{setting.name}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
+              Connexion
+            </Button>
+          }
+          {isSignedIn &&
+            <Box sx={{ flexGrow: 0 }}>
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <AppAvatar userName="John Doe" userImage="https://www.w3schools.com/howto/img_avatar.png" size={50} />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: '45px' }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                {settings.map((setting, index) => (
+                  <MenuItem key={index} onClick={handlePageChange(setting.link)}>
+                    <Typography textAlign="center">{setting.name}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+          }
         </Toolbar>
       </div>
     </AppBar>

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Conference } from '../models/Conference';
 import { useLocation } from 'react-router-dom';
-import { Row, Col, Image, Carousel, Card } from 'react-bootstrap';
+import { Row, Col, Image, Carousel, Card, Container } from 'react-bootstrap';
 import { useState } from 'react';
 import ConferenceInformation from '../utils/ConferenceInformation';
 import '../styles/ConferenceView.css';
@@ -69,7 +69,7 @@ function ConferenceView(props: any) {
 
 
     return (
-        <div style={{ maxWidth: 1200, margin: 'auto' }}>
+        <Container>
             <Row>
                 <h2>{conference.intitule}</h2>
                 <Col xs={6} md={8}>
@@ -92,7 +92,7 @@ function ConferenceView(props: any) {
                     })}
                 </Carousel>
             </div>
-        </div>
+        </Container>
     )
 }
 

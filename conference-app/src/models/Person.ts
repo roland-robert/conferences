@@ -7,23 +7,25 @@ export class User {
     prenom?: string;
     nom?: string;
     email?: string;
+    password?: string;
     profil?: Theme[];
 
-    constructor({ id, prenom, nom, email: email, profil }: User) {
+    constructor({ id, prenom, nom, email: email, password, profil }: User) {
         this.id = id;
         this.prenom = prenom;
         this.nom = nom;
         this.email = email;
         this.profil = profil;
+        this.password = password;
     }
 
     static fromJSON(json: any): User {
         return new User({
             id: json.id_utilisateur,
-            prenom: json.prenom,
-            nom: json.nom,
-            email: json.mail,
-            profil: json.profil
+            prenom: json.nom,
+            nom: json.prenom,
+            email: json.email,
+            profil: json.themes?.map((theme: any) => Theme.fromJSON(theme)),
         });
     }
 

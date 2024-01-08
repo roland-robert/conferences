@@ -1,8 +1,10 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useToken } from '../services';
+import { Buffer } from 'buffer';
 
-export default function PrivateRoute({ children }: any) {
+
+export  function PrivateRoute({ children }: any) {
     const { token } = useToken();
 
     if (!token) return <Navigate to="/login" />;
@@ -22,4 +24,10 @@ export default function PrivateRoute({ children }: any) {
         localStorage.clear();
         return <Navigate to="/login" />;
     }
+}
+
+export  function PublicOnlyRoute({ children }: any) {
+    const { token } = useToken();
+    if (token) return <Navigate to="/" />;
+    return children;
 }

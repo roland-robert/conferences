@@ -8,6 +8,7 @@ import { Pays } from '../models/Localisation';
 import { ConferenceType, Serie } from '../models/Conference';
 import { Theme } from '../models/Session';
 import { API } from '../api/api';
+import { on } from 'events';
 
 
 
@@ -41,6 +42,13 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
         onHide();
     }
 
+    function handleReset() {
+        setFilters(new Filters({}));
+        setCurrentFilters(new Filters({}));
+        onHide();
+        
+    }
+
 
     return <Offcanvas
         show={show}
@@ -48,7 +56,7 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
         onHide={onHide}
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
-        centered
+        // centered
     >
         <Offcanvas.Header closeButton>
             <Offcanvas.Title id="contained-modal-title-vcenter">Filtres</Offcanvas.Title>
@@ -113,6 +121,7 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
                     (item) => ({ value: item.id!.toString(), label: item.nom! })
                 )}
             /> */}
+            <Button className='me-2' variant="secondary" onClick={handleReset}>Réinitialiser</Button>
             <Button variant="primary" onClick={onApply}>Appliquer</Button>
 
         </Offcanvas.Body>
@@ -183,7 +192,7 @@ function FilterDateWithLabel({ label, onChange, value }: FilterDateWithLabelProp
                     <label>{label}</label>
                 </div>
 
-                <input aria-label="Date" type="date" value={value?.toISOString().substring(0,10)}/>
+                <input aria-label="Date" type="date" defaultValue={value?.toISOString().substring(0,10)}/>
 
             </div>
         </>

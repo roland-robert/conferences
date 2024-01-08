@@ -7,6 +7,7 @@ import { TitleRow } from '../utils/TitleRow';
 import { privateQuery } from '../services';
 import { Conference, ConferenceType } from '../models/Conference';
 import { Filters } from '../models/Filters';
+import { API } from '../api/api';
 
 
 interface ConferenceViewProps {
@@ -14,30 +15,9 @@ interface ConferenceViewProps {
     filters: Filters;
 }
 
-
 function MainView({ openFilters, filters }: ConferenceViewProps) {
 
     const [conferences, setConferences] = useState<Conference[]>([]);
-
-    const getConferences = (params?: any) => {
-        // var params = {
-        //     // "id_pays": 1,
-        // }
-        privateQuery("GET", `/conferences`, { params: params })
-            .then((events: any) => {
-                var conferences = events.map((event: any) => Conference.fromJSON(event));
-                setConferences(conferences);
-            })
-            .catch((err: any) => {
-                console.log(err);
-            });
-    };
-
-
-
-    // useEffect(() => {
-    //     getConferences();
-    // }, []);
 
     useEffect(() => {
         var isWorkshop = null;
@@ -48,12 +28,9 @@ function MainView({ openFilters, filters }: ConferenceViewProps) {
             id_serie: filters.serie?.id,
             is_workshop: isWorkshop,
         }
-        getConferences(params);
+        API.getConferences(setConferences, params);
     }, [filters]);
 
-  
-
-   
 
     return (
         <>
@@ -63,15 +40,13 @@ function MainView({ openFilters, filters }: ConferenceViewProps) {
                     <FaFilter className='me-3' />Filtrer
                 </Button>} />
 
-            <div className='list-container' >
+            {conferences.length > 0 ? <div className='list-container' >
                 {conferences.map((conference, index) => (
                     <ConferenceCard key={index} conference={conference} />
                 ))}
-            </div>
+            </div> : <p>Aucun appel à communication pour les filtres sélectionnés</p>}
         </>
-
     )
-
 }
 
 export default MainView;

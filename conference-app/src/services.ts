@@ -1,13 +1,13 @@
 import axios from "axios";
 import { useState } from "react";
 
-export async function privateQuery(method: string, endpoint: string, {data = null, params = null, port= 8000}: {data?: any, params?: any, port?: number} = {} ) {
-    // console.log(process.env["REACT_APP_LOCAL_API_URL"]);
-    console.log(method+" http://localhost:" + port + endpoint);
+
+export async function privateQuery(method: string, endpoint: string, { data = null, params = null }: { data?: any, params?: any, port?: number } = {}) {
+    console.log(method + " http://localhost:8000" + endpoint);
     const token = localStorage.getItem("token");
     const res = await axios({
         method: method,
-        url: `http://localhost:${port}` + endpoint,
+        url: `http://localhost:8000` + endpoint,
         data: data,
         params: params,
         headers: { Authorization: `Bearer ${token}` },
@@ -38,3 +38,4 @@ export function useToken() {
         token,
     };
 }
+

@@ -1,33 +1,40 @@
 import React, { useEffect } from 'react';
 import { Conference } from '../models/Conference';
 import ConferenceCard from '../utils/ConferenceCard';
-import { Button } from 'react-bootstrap';
+import { Button, Container } from 'react-bootstrap';
 import { FaCirclePlus } from "react-icons/fa6";
 import { TitleRow } from '../utils/TitleRow';
+import { useNavigate } from 'react-router-dom';
+import { API } from '../api/api';
+import { User } from '../models/Person';
 
 
 function SubmissionsView() {
-
+    const navigate = useNavigate();
     const [submissions, setSubmissions] = React.useState<Conference[]>([]);
-    //TODO: get submissions from backend
+    const [user, setUser] = React.useState<User|undefined>(undefined);
+
+    const fetchData = async () => {
+        var user = await API.getUserData();
+        setUser(user);
+        API.getConferences(setSubmissions, { id_utilisateur: user?.id });
+    }
+
     useEffect(() => {
-        var data:Conference[] = [];
-        setSubmissions(data);
+        fetchData();
     }, []);
+
 
 
     return (
         <>
-            <TitleRow
-                title='Mes soumissions'
-                button={<Button variant="contained" color="primary" onClick={()=>{}}>
-                    <FaCirclePlus className='me-3' />Soumettre une contribution
-                </Button>} />
+            <h1>Mes contributions</h1>
+
             {submissions.length == 0 ?
                 <p>Vous n'avez pas encore soumis de contribution</p> :
                 <div className='list-container' >
-                    {submissions.map((conference) => (
-                        <ConferenceCard conference={conference} />
+                    {submissions.map((conference, index) => (
+                        <ConferenceCard key={index} conference={conference} />
                     ))}
                 </div>
             }

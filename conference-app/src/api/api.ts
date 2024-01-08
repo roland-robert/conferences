@@ -1,7 +1,11 @@
-import { Serie } from "../models/Conference";
+import axios from "axios";
+import { Conference, Serie } from "../models/Conference";
 import { Pays, Ville } from "../models/Localisation";
 import { Theme } from "../models/Session";
 import { privateQuery } from "../services";
+import { User } from "../models/Person";
+
+
 
 export class API {
 
@@ -53,5 +57,109 @@ export class API {
             });
     };
 
+    static async loginUser(username: string, password: string) {
+
+        try {
+            const formData = new FormData();
+            formData.append('username', username);
+            formData.append('password', password);
+
+            const response = await axios.post('http://localhost:8000/token', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response;
+        }
+        catch (error: any) {
+            console.log(error);
+            return error.response;
+        }
+
+    }
+
+    static async getUserData(): Promise<User | undefined> {
+        try {
+            var resp = await privateQuery("GET", `/user/me`)
+            var user = User.fromJSON(resp);
+            return user;
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+
+
+    static async updateUserThemes2(themes: Theme[]) {
+        var user = await API.getUserData();
+        if (user === undefined) {
+            return;
+        }
+        try {
+            var data = {
+                utilisateur: {
+                    prenom: user.prenom,
+                    nom: user.nom,
+                    id_utilisateur: user.id,
+                },
+                themes: themes.map((theme) => {
+                    return {
+                        id_theme: theme.id,
+                        nom: theme.nom,
+                    }
+                })
+            }
+            var resp = await privateQuery("PUT", `/utilisateur_and_themes`, { data: data })
+            console.log(resp);
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+
+    static async getConferences(setConferences: any, params?: any) {
+
+        privateQuery("GET", `/conferences`, { params: params })
+            .then((events: any) => {
+                var conferences = events.map((event: any) => Conference.fromJSON(event));
+                setConferences(conferences);
+            })
+            .catch((err: any) => {
+                console.log(err);
+            });
+    };
+
+    static async getUsers() {
+        var users: User[] = []
+        await privateQuery("GET", `/utilisateurs`)
+            .then((events: any) => {
+                users = events.map((event: any) => User.fromJSON(event));
+            })
+            .catch((err: any) => {
+                console.log(err);
+            });
+        return users;
+    }
+
+    static async createUser(user: User) {
+        var data = {
+            prenom: user.prenom,
+            nom: user.nom,
+            email: user.email,
+            password: user.password,
+        }
+        const response = await privateQuery("POST", `/utilisateur`, { data: data })
+            .then((events: any) => {
+                console.log(events);
+            })
+            .catch((err: any) => {
+                console.log(err);
+            });
+        return response;
+    }
 }
+
+
+
+
 
