@@ -6,7 +6,7 @@ from orm_sqlalchemy.editeur_conference import create_editeur_conference
 from orm_sqlalchemy.organisateur import create_organisateur
 from orm_sqlalchemy.serie import create_serie
 from orm_sqlalchemy.theme import create_theme_and_link
-from pydantic_models.models import CategorieSoumissionBase, CategorieSoumissionUpdate, ConferenceBase, ConferenceCreate, ConferenceCreateOrUpdate, ConferenceUpdate, OrganisateurBase, SerieBase, SessionBase, SessionUpdate, ThemeBase, Session
+from pydantic_models.models import CategorieSoumissionBase, CategorieSoumissionUpdate, ConferenceBase, ConferenceCreate, ConferenceCreateOrUpdate, ConferenceUpdate, EditeurConferenceBase, OrganisateurBase, SerieBase, SessionBase, SessionUpdate, ThemeBase, Session
 from sqlalchemy import create_engine, select, exists, or_, and_, insert
 from sqlalchemy.orm import sessionmaker, joinedload
 from typing import Literal
@@ -184,7 +184,7 @@ def _get_id_organisateur(conference: ConferenceCreate) -> int | None:
     if conference.organisateur:
         if conference.organisateur.id_organisateur:
             return conference.organisateur.id_organisateur
-        return create_organisateur(conference.organisateur)
+        return create_organisateur(OrganisateurBase(nom=conference.organisateur.nom, adresse=conference.organisateur.adresse, email=conference.organisateur.email))
     return None
 
 
@@ -195,7 +195,7 @@ def _get_id_editeur_conference(conference: ConferenceCreate) -> int | None:
     if conference.editeur_conference:
         if conference.editeur_conference.id_editeur_conference:
             return conference.editeur_conference.id_editeur_conference
-        return create_editeur_conference(conference.editeur_conference)
+        return create_editeur_conference(EditeurConferenceBase(nom=conference.editeur_conference.nom))
     return None
 
 

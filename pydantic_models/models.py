@@ -71,11 +71,16 @@ class UtilisateurMe(Utilisateur):
 
 
 class EditeurConferenceBase(BaseModel):
-    nom: str
+    nom: str | None
 
 
 class EditeurConference(EditeurConferenceBase):
     id_editeur_conference: int
+
+
+class EditeurConferenceLibre(BaseModel):
+    nom: str | None = None
+    id_editeur_conference: int | None = None
 
 
 class EditeurConferenceUpdate(EditeurConference):
@@ -99,9 +104,9 @@ class SerieOptional(SerieBase):
 
 
 class OrganisateurBase(BaseModel):
-    nom: str
-    adresse: str
-    email: str
+    nom: str | None
+    adresse: str | None
+    email: str | None
 
 
 class Organisateur(OrganisateurBase):
@@ -256,7 +261,7 @@ class ConferenceCreate(ConferenceBase):
     serie: SerieOptional | None = None
     ville: Ville | None = None
     organisateur: Organisateur | None = None
-    editeur_conference: EditeurConference | None = None
+    editeur_conference: EditeurConferenceLibre | None = None
     utilisateur: Utilisateur | None = None
     categories_soumission: List[CategorieSoumission]
     sessions: List[Session]
