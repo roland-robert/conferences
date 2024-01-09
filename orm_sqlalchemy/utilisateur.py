@@ -17,6 +17,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 session = SessionLocal()
 
 
+def get_utilisateur_id(id_utilisateur: int) -> Utilisateur:
+    utilisateurs: list[Utilisateur] = session.query(
+        Utilisateur).options(joinedload(Utilisateur.themes)).filter(Utilisateur.id_utilisateur == id_utilisateur).all()
+    return utilisateurs[0]
+
+
 def create_salt():
     ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     chars = []
@@ -87,6 +93,12 @@ def update_utilisateur_and_link_to_themes(utilisateur: UtilisateurUpdate, themes
     id_utilisateur = utilisateur.id_utilisateur
     update_utilisateur(utilisateur_update=utilisateur)
     id_themes = []
+    utilisateur_complet = get_utilisateur_id(id_utilisateur)
+    previous_id_themes = [
+        theme.id_theme for theme in utilisateur_complet.themes]
+    for previous_id_theme in previous_id_themes:
+        delete_user_theme(id_theme=previous_id_theme,
+                          id_utilisateur=id_utilisateur)
     for theme in themes:
         if theme.id_theme:
             id_themes.append(theme.id_theme)
@@ -94,6 +106,7 @@ def update_utilisateur_and_link_to_themes(utilisateur: UtilisateurUpdate, themes
             id_themes.append(create_theme(ThemeBase(nom=theme.nom)))
     for id_theme in id_themes:
         link_user_and_theme(id_theme=id_theme, id_utilisateur=id_utilisateur)
+
     return id_utilisateur
 
 

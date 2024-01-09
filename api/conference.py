@@ -27,7 +27,7 @@ async def get_conferences_filter(order_by: Literal['date_debut', 'date_fin'] = '
                                  order: Literal['asc', 'desc'] = 'asc',
                                  id_pays: int | None = None,
                                  id_theme_list: Annotated[list[int],
-                                                          Query(max_length=50)] = [],
+                                                          Query(max_length=50, explode=True)] = [],
                                  id_serie: int | None = None,
                                  id_editeur: int | None = None,
                                  responsable: str | None = None,  # nom ou prenom regex sur nom ou prenom contient
