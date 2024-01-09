@@ -79,7 +79,7 @@ export default function ConferenceView(props: any) {
                     <ConferenceInformation conference={conference} />
                 </Col>
             </Row>
-            <div>
+            {(conference?.sessions?.length??0) > 0 && <div>
                 <Carousel activeIndex={index} onSelect={handleSelect} variant='dark'>
                     {conference?.sessions?.map((session: any, index: any) => {
                         return (
@@ -87,9 +87,10 @@ export default function ConferenceView(props: any) {
                         )
                     })}
                 </Carousel>
-            </div>
+
+            </div>}
             {workshopAssocies.length > 0 && <div>
-                <h1>Worksops Associés</h1>
+                <h1>Workshops Associés</h1>
                 <div className='list-container' >
                     {workshopAssocies.map((workshop, index) => (
                         <ConferenceCard key={index} conference={workshop} />

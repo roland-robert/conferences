@@ -36,7 +36,6 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
     }
 
     useEffect(() => {
-        //TODO: redux?
         if (!show) return;
         API.getCountries(setCountries);
         API.getSeries(setSeries);

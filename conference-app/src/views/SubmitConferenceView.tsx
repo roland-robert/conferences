@@ -9,14 +9,20 @@ import { Organisateur, Responsable, TypeResponsabilite, User } from '../models/P
 import { FaCalendarDays, FaCirclePlus, FaXmark } from 'react-icons/fa6';
 import { TitleRow } from '../utils/TitleRow';
 import Select from 'react-select';
+import { useNavigate } from 'react-router-dom';
 
 
 
 function SubmitConferenceView() {
+    const navigate = useNavigate();
 
-    function handleCreateConference() {
+    async function handleCreateConference() {
         console.log(conference);
-        API.createConference(conference!);
+        API.createConference(conference!).then((response) => {
+            console.log(response);
+            navigate('/submissions');
+        })
+
     }
 
     const [countries, setCountries] = useState<Pays[]>([]);
@@ -375,7 +381,6 @@ function SubmitConferenceView() {
 
 
     if (cities.length == 0 || series.length == 0 || selectedcountry == undefined || conference == undefined) {
-        //TODO: loading
         return <></>;
     }
 

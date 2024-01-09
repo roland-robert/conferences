@@ -21,7 +21,6 @@ function ProfileView() {
     const [selectedThemes, setSelectedThemes] = useState<Theme[]>([]);
     const [showAddThemeForm, setShowAddThemeForm] = useState(false);
     const [conferences, setConferences] = useState<Conference[]>([]);
-    // TODO: affichage des conférences filtrées par thème dans le profil (centres d'intérêts)
 
     const fetchData = async () => {
         var user = await API.getUserData();

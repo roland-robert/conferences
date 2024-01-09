@@ -20,7 +20,7 @@ import { useEffect } from 'react';
 
 function CustomAppBar() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const  [user, setUser] = React.useState<User | undefined>(undefined); // TODO: use redux
+  const  [user, setUser] = React.useState<User | undefined>(undefined); 
   const navigate = useNavigate();
 
   const fetchUser = async () => {
@@ -60,7 +60,7 @@ function CustomAppBar() {
   if (isSignedIn && isAdmin) {
     pages = [...pages, { name: 'Recherche utilisateur', link: '/search_users' }];
   }
-  pages = [...pages, { name: 'A propos', link: '/about' }];
+  // pages = [...pages, { name: 'A propos', link: '/about' }];
   
   const settings = [{ name: 'Profil', link: '/profile' }, { name: 'Déconnexion', link: '/login' }];
 
