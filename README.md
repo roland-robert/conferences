@@ -1,3 +1,5 @@
+https://github.com/roland-robert/conferences
+
 # Setup using ONLY docker (very easy)
 
 Install docker
