@@ -19,6 +19,11 @@ function MainView({ openFilters, filters }: ConferenceViewProps) {
 
     const [conferences, setConferences] = useState<Conference[]>([]);
 
+    const fetchConferences = async (params: any) => {
+        var conferences = await API.getConferences(params);
+        setConferences(conferences);
+    }
+
     useEffect(() => {
         var isWorkshop = null;
         if (filters.conferenceType === ConferenceType.CONFERENCE) isWorkshop = false;
@@ -27,8 +32,11 @@ function MainView({ openFilters, filters }: ConferenceViewProps) {
             id_pays: filters.pays?.id,
             id_serie: filters.serie?.id,
             is_workshop: isWorkshop,
+            min_date: filters.minDate ? new Date(filters.minDate).toISOString() : null,
+            max_date: filters.maxDate ? new Date(filters.maxDate).toISOString() : null,
+            id_editeur: filters.editeur?.id,
         }
-        API.getConferences(setConferences, params);
+        fetchConferences(params);
     }, [filters]);
 
 

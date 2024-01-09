@@ -40,6 +40,45 @@ export class EditeurConference {
 }
 
 
+export class CategorieSoumission{
+    conferenceId?: number;
+    nom?  : string;
+    nombreMaxiPages?: number;
+    font?: string;
+    fontSize?: number;
+    typeLogiciel?: string;
+    dateSoumission?: Date;
+    dateNotificationAcceptation?: Date;
+    dateLimiteEnvoiSersionCorrigee?: Date;
+
+    constructor({ conferenceId, nom, nombreMaxiPages, font, fontSize, typeLogiciel, dateSoumission, dateNotificationAcceptation: dateAcceptation, dateLimiteEnvoiSersionCorrigee }: CategorieSoumission) {
+        this.conferenceId = conferenceId;
+        this.nom = nom;
+        this.nombreMaxiPages = nombreMaxiPages;
+        this.font = font;
+        this.fontSize = fontSize;
+        this.typeLogiciel = typeLogiciel;
+        this.dateSoumission = dateSoumission;
+        this.dateNotificationAcceptation = dateAcceptation;
+        this.dateLimiteEnvoiSersionCorrigee = dateLimiteEnvoiSersionCorrigee;
+    }
+
+    static fromJSON(json: any): CategorieSoumission {
+        return new CategorieSoumission({
+            conferenceId: json.id_conference,
+            nom: json.nom_categorie,
+            nombreMaxiPages: json.nombre_maxi_pages,
+            font: json.font,
+            fontSize: json.font_size,
+            typeLogiciel: json.type_logiciel,
+            dateSoumission: new Date(json.date_soumission),
+            dateNotificationAcceptation: new Date(json.date_notification_acceptation),
+            dateLimiteEnvoiSersionCorrigee: new Date(json.date_limite_envoi_version_corrigee)
+        });
+    }
+}
+
+
 export class Conference {
     id?: number;
     serie?: Serie;
@@ -54,8 +93,9 @@ export class Conference {
     sessions?: Session[];
     workshopConferenceId?: number;
     isWorkshop?: boolean;
+    categoriesSoumission?: CategorieSoumission[];
 
-    constructor({ id, serie, intitule, dateDebut, dateFin, editeur, organisateur, texteIntroductif, ville, image_url: image_url, sessions, workshopConferenceId: workshopConferenceId }: Conference) {
+    constructor({ id, serie, intitule, dateDebut, dateFin, editeur, organisateur, texteIntroductif, ville, image_url, sessions, workshopConferenceId, categoriesSoumission }: Conference) {
         this.id = id;
         this.serie = serie;
         this.intitule = intitule;
@@ -69,6 +109,7 @@ export class Conference {
         this.sessions = sessions;
         this.workshopConferenceId = workshopConferenceId;
         this.isWorkshop = this.workshopConferenceId !== null;
+        this.categoriesSoumission = categoriesSoumission;
     }
 
     
@@ -86,7 +127,8 @@ export class Conference {
             image_url: json.image_url,
             sessions: json.sessions.map((session: any) => Session.fromJSON(session)),
             workshopConferenceId: json.id_conference_du_workshop,
-            isWorkshop: json.id_conference_du_workshop !== null
+            isWorkshop: json.id_conference_du_workshop !== null,
+            categoriesSoumission: json.categories_soumission?.map((categorie: any) => CategorieSoumission.fromJSON(categorie))
         });
     }
 }

@@ -17,7 +17,8 @@ function SubmissionsView() {
     const fetchData = async () => {
         var user = await API.getUserData();
         setUser(user);
-        API.getConferences(setSubmissions, { id_utilisateur: user?.id });
+        var conferences = await API.getConferences({ id_utilisateur: user?.id });
+        setSubmissions(conferences)
     }
 
     useEffect(() => {

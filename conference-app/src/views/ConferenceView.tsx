@@ -9,26 +9,29 @@ import { privateQuery } from '../services';
 import { Session } from '../models/Session';
 import { CustomTag } from '../utils/CustomTag';
 import { AppAvatar } from '../utils/Avatar';
+import { API } from '../api/api';
+import ConferenceCard from '../utils/ConferenceCard';
 
 
-function ConferenceView(props: any) {
+export default function ConferenceView(props: any) {
     const location = useLocation();
     const [conference, setConference] = useState<Conference>(location.state.conference);
+    const [workshopAssocies, setWorkshopAssocies] = useState<Conference[]>([]);
     const [index, setIndex] = useState(0);
 
-    const getConference = () => {
-        privateQuery("GET", `/conference/${conference.id}`)
-            .then((events: any) => {
-                var conference = Conference.fromJSON(events);
-                setConference(conference);
-            })
-            .catch((err: any) => {
-                console.log(err);
-            });
-    };
+
+    const fetchData = async () => {
+        const conferenceId = location.state.conference.id;
+        var conference = await API.getConference(conferenceId);
+        var workshopsAssocies = await API.getWorkshopsAssocies(conferenceId);
+        if (conference) setConference(conference);
+        if (workshopsAssocies) setWorkshopAssocies(workshopsAssocies);
+    }
+
+
 
     useEffect(() => {
-        getConference();
+        fetchData();
     }, []);
 
     const handleSelect = (selectedIndex: any) => {
@@ -42,6 +45,11 @@ function ConferenceView(props: any) {
             <Carousel.Item ref={ref} {...props} >
                 <div className='session-carousel-item'>
                     <h3>{session.intitule}</h3>
+                    <div className='mb-3'>
+                        {session.themes?.map((theme, index) => (
+                            <CustomTag key={index} color={theme.color} text={theme.nom} />
+                        ))}
+                    </div>
                     <div>
                         {session.responsables!.map((responsable, index) => (
                             <div key={index} className='d-flex'>
@@ -50,18 +58,7 @@ function ConferenceView(props: any) {
                             </div>
                         ))}
                     </div>
-
-                    <Carousel.Caption>
-                        <div>
-                            {session.themes?.map((theme, index) => (
-                                <CustomTag key={index} color={theme.color} text={theme.nom} />
-                            ))}
-                        </div>
-
-                    </Carousel.Caption>
-
                 </div>
-
             </Carousel.Item>
         )
     });
@@ -82,7 +79,6 @@ function ConferenceView(props: any) {
                     <ConferenceInformation conference={conference} />
                 </Col>
             </Row>
-            <h2>Sessions</h2>
             <div>
                 <Carousel activeIndex={index} onSelect={handleSelect} variant='dark'>
                     {conference?.sessions?.map((session: any, index: any) => {
@@ -92,8 +88,15 @@ function ConferenceView(props: any) {
                     })}
                 </Carousel>
             </div>
+            {workshopAssocies.length > 0 && <div>
+                <h1>Worksops Associés</h1>
+                <div className='list-container' >
+                    {workshopAssocies.map((workshop, index) => (
+                        <ConferenceCard key={index} conference={workshop} />
+                    ))}
+                </div>
+            </div>
+            }
         </Container>
     )
 }
-
-export default ConferenceView;

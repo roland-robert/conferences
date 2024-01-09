@@ -11,13 +11,22 @@ import MenuItem from '@mui/material/MenuItem';
 import { useNavigate } from 'react-router-dom';
 import { AppAvatar } from './Avatar';
 import { FaGlobe } from "react-icons/fa6";
+import { API } from '../api/api';
+import { User } from '../models/Person';
+import { useEffect } from 'react';
 
 
 
 
 function CustomAppBar() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const  [user, setUser] = React.useState<User | undefined>(undefined); // TODO: use redux
   const navigate = useNavigate();
+
+  const fetchUser = async () => {
+    var user = await API.getUserData();
+    setUser(user);
+  }
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -36,12 +45,20 @@ function CustomAppBar() {
     }
   }
 
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
   const token = localStorage.getItem('token');
-  const isSignedIn = token !== null;
+  const isSignedIn = user !== null && user!== undefined && token;
+  const isAdmin = user?.role === 'admin';
   
   var pages = [{ name: 'Appel à communication', link: '/' }];
   if (isSignedIn) {
     pages = [...pages, { name: 'Mes Contributions', link: '/submissions' }, { name: 'Soumettre une Contribution', link: '/submit' }];
+  }
+  if (isSignedIn && isAdmin) {
+    pages = [...pages, { name: 'Recherche utilisateur', link: '/search_users' }];
   }
   pages = [...pages, { name: 'A propos', link: '/about' }];
   

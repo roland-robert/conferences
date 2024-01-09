@@ -18,7 +18,10 @@ function ConferenceCard({ conference }: ConferenceCardProps) {
   const [style, setStyle] = React.useState({ width: '24.5%', margin: '.25%' } as React.CSSProperties);
 
   const handleClick = () => {
+    var currentPage = window.location.pathname;
     navigate(`/conference`, { state: { conference: conference } });
+    //refresh page if already on conference page
+    if (currentPage == '/conference') window.location.reload();
   }
 
   const showDate = conference.dateDebut && conference.dateFin;
@@ -61,7 +64,7 @@ function ConferenceCard({ conference }: ConferenceCardProps) {
   return (
 
     <Card className='conf-card' style={style} onClick={handleClick}>
-      <Card.Img variant="top" src={conference.image_url??''} style={{ objectFit: 'cover', aspectRatio: 3 / 2 }} />
+      <Card.Img variant="top" src={conference.image_url ?? ''} style={{ objectFit: 'cover', aspectRatio: 3 / 2 }} />
       <Card.Body>
         <Card.Title>{conference.intitule}</Card.Title>
         <Card.Text>{conference.texteIntroductif}</Card.Text>

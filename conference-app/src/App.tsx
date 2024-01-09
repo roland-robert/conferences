@@ -15,7 +15,8 @@ import { FiltersModal } from './utils/FiltersModal';
 import "@fontsource/montserrat"; // Defaults to weight 400
 import { User } from './models/Person';
 import { useToken } from './services';
-import { PrivateRoute, PublicOnlyRoute } from './utils/CustomRoute';
+import { AdminOnlyRoute, PrivateRoute, PublicOnlyRoute } from './utils/CustomRoute';
+import SearchUsersView from './views/SearchUsersView';
 
 
 
@@ -59,6 +60,11 @@ function App() {
               <PublicOnlyRoute>
                 <LoginView />
               </PublicOnlyRoute>
+            } />
+            <Route path="/search_users" element={
+              <AdminOnlyRoute>
+                <SearchUsersView />
+              </AdminOnlyRoute>
             } />
           </Routes>
         </div>

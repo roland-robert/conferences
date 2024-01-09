@@ -9,14 +9,16 @@ export class User {
     email?: string;
     password?: string;
     profil?: Theme[];
+    role?: string;
 
-    constructor({ id, prenom, nom, email: email, password, profil }: User) {
+    constructor({ id, prenom, nom, email: email, password, profil, role }: User) {
         this.id = id;
         this.prenom = prenom;
         this.nom = nom;
         this.email = email;
         this.profil = profil;
         this.password = password;
+        this.role = role;
     }
 
     static fromJSON(json: any): User {
@@ -26,6 +28,7 @@ export class User {
             nom: json.prenom,
             email: json.email,
             profil: json.themes?.map((theme: any) => Theme.fromJSON(theme)),
+            role: json.user_role
         });
     }
 

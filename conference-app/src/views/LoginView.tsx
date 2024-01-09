@@ -54,7 +54,7 @@ function LoginView() {
         }
         //check if user already exists
         var utilisateurs = await API.getUsers();
-        var userAlreadyExists = utilisateurs.filter((utilisateur) => utilisateur.email === newUser.email).length > 0;
+        var userAlreadyExists = utilisateurs?.filter((utilisateur) => utilisateur.email === newUser.email).length > 0;
         if (userAlreadyExists) {
             setAlert('Un compte existe déjà avec cet email');
             return;

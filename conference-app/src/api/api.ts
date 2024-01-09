@@ -1,9 +1,9 @@
 import axios from "axios";
-import { Conference, Serie } from "../models/Conference";
+import { Conference, EditeurConference, Serie } from "../models/Conference";
 import { Pays, Ville } from "../models/Localisation";
 import { Theme } from "../models/Session";
 import { privateQuery } from "../services";
-import { User } from "../models/Person";
+import { Responsable, TypeResponsabilite, User } from "../models/Person";
 
 
 
@@ -117,28 +117,44 @@ export class API {
         }
     }
 
-    static async getConferences(setConferences: any, params?: any) {
-
-        privateQuery("GET", `/conferences`, { params: params })
-            .then((events: any) => {
-                var conferences = events.map((event: any) => Conference.fromJSON(event));
-                setConferences(conferences);
-            })
-            .catch((err: any) => {
-                console.log(err);
-            });
+    static async getConferences(params?: any): Promise<Conference[]> {
+        try{
+            var resp = await privateQuery("GET", `/conferences`, { params: params })
+            var conferences = resp.map((event: any) => Conference.fromJSON(event));
+            return conferences;
+        }
+        catch(error){
+            console.log(error);
+            return [];
+        }
     };
 
-    static async getUsers() {
-        var users: User[] = []
-        await privateQuery("GET", `/utilisateurs`)
-            .then((events: any) => {
-                users = events.map((event: any) => User.fromJSON(event));
-            })
-            .catch((err: any) => {
-                console.log(err);
-            });
-        return users;
+    static async getConference(id: number): Promise<Conference | undefined> {
+        try {
+            var resp = await privateQuery("GET", `/conference/${id}`)
+            var conference = Conference.fromJSON(resp);
+            return conference;
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+
+    static async getWorkshopsAssocies(id: number): Promise<Conference[]> {
+        return await API.getConferences({ id_conference_du_workshop: id });
+    }
+
+    static async getUsers(): Promise<User[]> {
+        try {
+            var resp = await privateQuery("GET", `/utilisateurs`)
+            var users = resp.map((user: any) => User.fromJSON(user));
+            return users;
+        }
+        catch (error) {
+            console.log(error);
+            return []
+        }
+
     }
 
     static async createUser(user: User) {
@@ -156,6 +172,40 @@ export class API {
                 console.log(err);
             });
         return response;
+    }
+
+    static async getEditeurs() {
+        try {
+            var resp = await privateQuery("GET", `/editeurs_conference`)
+            var editeurs = resp.map((editeur: any) => EditeurConference.fromJSON(editeur));
+            return editeurs;
+        }
+        catch (error) {
+            console.log(error);
+        }
+    }
+
+    static async getTypesResponsabilite(): Promise<TypeResponsabilite[]> {
+        try {
+            var resp = await privateQuery("GET", `/types_responsabilite`)
+            var typeResponsabilites = resp.map((typeResponsabilite: any) => TypeResponsabilite.fromJSON(typeResponsabilite));
+            return typeResponsabilites;
+        }
+        catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    static async getResponsables() {
+        try {
+            var resp = await privateQuery("GET", `/responsables`)
+            var responsables = resp.map((responsable: any) => Responsable.fromJSON(responsable));
+            return responsables;
+        }
+        catch (error) {
+            console.log(error);
+        }
     }
 }
 

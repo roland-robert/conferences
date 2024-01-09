@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 
 import { Filters } from '../models/Filters';
-import { Button, Modal, Offcanvas } from 'react-bootstrap';
-import { FaLocationDot, FaList, FaUser, FaPalette, FaCircleInfo, FaCalendarDays  } from "react-icons/fa6";
+import { Button, Form, Modal, Offcanvas } from 'react-bootstrap';
+import { FaLocationDot, FaList, FaUser, FaPalette, FaCircleInfo, FaCalendarDays, FaPencil } from "react-icons/fa6";
 import Select from 'react-select';
 import { Pays } from '../models/Localisation';
-import { ConferenceType, Serie } from '../models/Conference';
+import { ConferenceType, EditeurConference, Serie } from '../models/Conference';
 import { Theme } from '../models/Session';
 import { API } from '../api/api';
-import { on } from 'events';
+import '../styles/FiltersModal.css';
+import { FilterDateWithLabel, FilterSelectWithLabel } from './FiltersInputs';
 
 
 
@@ -26,7 +27,13 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
     const [countries, setCountries] = useState<Pays[]>([]);
     const [series, setSeries] = useState<Serie[]>([]);
     const [themes, setThemes] = useState<Theme[]>([]);
+    const [editeurs, setEditeurs] = useState<EditeurConference[]>([]);
     const [currentFilters, setCurrentFilters] = useState<Filters>(filters);
+
+    const fetchData = async () => {
+        var editeurs = await API.getEditeurs();
+        setEditeurs(editeurs);
+    }
 
     useEffect(() => {
         //TODO: redux?
@@ -34,6 +41,8 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
         API.getCountries(setCountries);
         API.getSeries(setSeries);
         API.getThemes(setThemes);
+        fetchData();
+
     }, [show]);
 
 
@@ -46,8 +55,12 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
         setFilters(new Filters({}));
         setCurrentFilters(new Filters({}));
         onHide();
-        
+
     }
+
+    // useEffect(() => {
+    //     console.log(currentFilters);
+    // }, [currentFilters]);
 
 
     return <Offcanvas
@@ -56,7 +69,7 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
         onHide={onHide}
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
-        // centered
+    // centered
     >
         <Offcanvas.Header closeButton>
             <Offcanvas.Title id="contained-modal-title-vcenter">Filtres</Offcanvas.Title>
@@ -99,17 +112,30 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
                 optionMapper={(item) => (item === undefined ? undefined : { value: item!.toString(), label: item === ConferenceType.CONFERENCE ? 'Conférence' : 'Workshop' })}
             />
 
-            <FilterDateWithLabel
-                label="Date Min"
-                value={new Date('2021-01-01')}
-                onChange={()=>{}}
+            <FilterSelectWithLabel
+                label="Editeur"
+                icon={<FaPencil />}
+                value={currentFilters.editeur}
+                onChange={(value) => setCurrentFilters(new Filters({ ...currentFilters, editeur: value }))}
+                options={editeurs}
+                optionMapper={(item) => (item === undefined ? undefined : { value: item!.id!.toString(), label: item!.nom! })}
             />
 
-            <FilterDateWithLabel
-                label="Date Max"
-                value={new Date()}
-                onChange={()=>{}}
-            />
+            <div className='d-flex justify-content-between'>
+                <FilterDateWithLabel
+                    label="Date Mini"
+                    value={currentFilters.minDate}
+                    onChange={(value) => setCurrentFilters(new Filters({ ...currentFilters, minDate: value }))}
+                />
+                <FilterDateWithLabel
+                    label="Date Maxi"
+                    value={currentFilters.maxDate}
+                    onChange={(value) => setCurrentFilters(new Filters({ ...currentFilters, maxDate: value }))}
+                />
+            </div>
+
+
+
 
 
             {/* <FilterSelectWithLabel
@@ -127,74 +153,4 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
         </Offcanvas.Body>
     </Offcanvas>
 
-}
-
-interface FilterSelectWithLabelProps {
-    label: string;
-    icon?: any;
-    options: any[];
-    optionMapper: (item: any) => { value: string, label: string } | undefined;
-    isMulti?: boolean;
-    isSearchable?: boolean;
-    value?: any;
-    onChange: (value: any) => void;
-}
-
-function FilterSelectWithLabel({ label, icon, options, optionMapper, isMulti, onChange, value }: FilterSelectWithLabelProps) {
-
-    function handleChange(e: any) {
-        if (e == null || e == undefined) {
-            onChange(undefined);
-            return;
-        }
-        if (isMulti) {
-            var selectedOptions = e.map((e: any) => options.find((option) => optionMapper(option)?.value == e.value)!);
-            onChange(selectedOptions);
-            return;
-        } else {
-            var option = options.find((option) => optionMapper(option)?.value == e.value)!;
-            onChange(option);
-            return;
-        }
-    }
-    return (
-        <>
-            <div className="mb-3">
-                <div className='d-flex mb-1'>
-                    {icon && <div className='me-2'>{icon}</div>}
-                    <label>{label}</label>
-                </div>
-
-                <Select
-                    isMulti={isMulti}
-                    isClearable={true}
-                    onChange={handleChange}
-                    defaultValue={isMulti ? value?.map((item: any) => optionMapper(item)) : optionMapper(value)}
-                    options={options.map(optionMapper)}
-                />
-            </div>
-        </>
-    )
-}
-
-interface FilterDateWithLabelProps {
-    label: string;
-    value?: Date;
-    onChange: (value: Date | Date[]) => void;
-}
-
-function FilterDateWithLabel({ label, onChange, value }: FilterDateWithLabelProps) {
-    return (
-        <>
-            <div className="mb-3">
-                <div className='d-flex mb-1'>
-                    <div className='me-2'>{<FaCalendarDays /> }</div>
-                    <label>{label}</label>
-                </div>
-
-                <input aria-label="Date" type="date" defaultValue={value?.toISOString().substring(0,10)}/>
-
-            </div>
-        </>
-    )
 }
