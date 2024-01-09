@@ -84,8 +84,15 @@ def get_conferences(
         filters.append(Conference.id_editeur == id_editeur)
 
     if responsable is not None:
-        filters.append(or_(Responsable.nom.ilike(
-            f'%{responsable}%'), Responsable.prenom.ilike(f'%{responsable}%')))
+        filters.append(Conference.responsables.any(
+            Responsable.utilisateur.has(
+                or_(Utilisateur.nom.ilike(
+                    f'%{responsable}%'),
+                    Utilisateur.prenom.ilike(f'%{responsable}%')
+                    )
+            )
+        )
+        )
 
     if min_date is not None:
         filters.append(Conference.date_debut >=
