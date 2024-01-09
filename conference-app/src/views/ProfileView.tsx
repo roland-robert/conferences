@@ -10,6 +10,8 @@ import { Theme } from '../models/Session';
 import { Button } from 'react-bootstrap';
 import { FaCirclePlus, FaFloppyDisk, FaPenToSquare, FaXmark } from 'react-icons/fa6';
 import Select from 'react-select';
+import { Conference } from '../models/Conference';
+import ConferenceCard from '../utils/ConferenceCard';
 
 
 function ProfileView() {
@@ -18,10 +20,15 @@ function ProfileView() {
     const [themes, setThemes] = useState<Theme[]>([]);
     const [selectedThemes, setSelectedThemes] = useState<Theme[]>([]);
     const [showAddThemeForm, setShowAddThemeForm] = useState(false);
+    const [conferences, setConferences] = useState<Conference[]>([]);
+    // TODO: affichage des conférences filtrées par thème dans le profil (centres d'intérêts)
 
     const fetchData = async () => {
         var user = await API.getUserData();
+        var conferences = await API.getConferences({ id_theme_list: user?.profil?.map((theme) => theme.id) });
         setUser(user);
+        console.log(conferences);
+        setConferences(conferences);
     }
 
     useEffect(() => {
@@ -109,7 +116,20 @@ function ProfileView() {
 
                     <AddThemeForm />
 
+                    
                 </div>}
+                {
+                        conferences.length > 0 ?
+                            <div>
+                                 <h1 className='mt-3'>Conférences susceptibles de vous intéresser</h1>
+                                <div className='list-container' >
+                                   
+                                    {conferences.map((conference, index) => (
+                                        <ConferenceCard key={index} conference={conference} />
+                                    ))}
+                                </div></div> : <p>Aucune conférence pour les centres d'intérêts renseignés</p>
+
+                    }
         </>
 
     )

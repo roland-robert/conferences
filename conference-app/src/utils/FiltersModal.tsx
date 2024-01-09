@@ -120,6 +120,10 @@ export function FiltersModal({ filters, setFilters, show, onHide }: FiltersModal
                 options={editeurs}
                 optionMapper={(item) => (item === undefined ? undefined : { value: item!.id!.toString(), label: item!.nom! })}
             />
+            <Form.Group className="mb-3 me-2 w-100" defaultValue={currentFilters.responsable??""} >
+                <Form.Label> <FaUser className='me-2'/>Responsable</Form.Label>
+                <Form.Control placeholder='Professeur X' value={currentFilters.responsable??""} onChange={(e:any) => setCurrentFilters(new Filters({ ...currentFilters, responsable: e.target.value }))}/>
+            </Form.Group>
 
             <div className='d-flex justify-content-between'>
                 <FilterDateWithLabel

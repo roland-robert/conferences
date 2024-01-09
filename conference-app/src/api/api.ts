@@ -118,12 +118,12 @@ export class API {
     }
 
     static async getConferences(params?: any): Promise<Conference[]> {
-        try{
+        try {
             var resp = await privateQuery("GET", `/conferences`, { params: params })
             var conferences = resp.map((event: any) => Conference.fromJSON(event));
             return conferences;
         }
-        catch(error){
+        catch (error) {
             console.log(error);
             return [];
         }
@@ -148,6 +148,7 @@ export class API {
         try {
             var resp = await privateQuery("GET", `/utilisateurs`)
             var users = resp.map((user: any) => User.fromJSON(user));
+            users.sort((a: User, b: User) => a.nom!.localeCompare(b.nom!));
             return users;
         }
         catch (error) {
@@ -206,6 +207,67 @@ export class API {
         catch (error) {
             console.log(error);
         }
+    }
+
+    static async createConference(conference: Conference) {
+        var data = {
+            id_serie: conference.serie?.id??null,
+            id_ville: conference.ville?.id??null,
+            id_utilisateur: conference.userId??null,
+            organisateur: {
+                nom: conference.organisateur?.nom??null,
+                adresse: conference.organisateur?.adresse??null,
+                email: conference.organisateur?.email??null,
+            },
+            editeur_conference: {
+                nom: conference.editeur?.nom??null,
+
+            },
+            intitule: conference.intitule??null,
+            date_debut: conference.dateDebut?.toISOString(),
+            date_fin: conference.dateFin?.toISOString(),
+            texte_introductif: conference.texteIntroductif??null,
+            image_url: conference.image_url??null,
+            categories_soumission: conference.categoriesSoumission?.map((categorie) => {
+                return {
+                    nom_categorie: categorie.nom??null,
+                    nombre_maxi_pages: categorie.nombreMaxiPages??null,
+                    font: categorie.font??null,
+                    font_size: categorie.fontSize??null,
+                    type_logiciel: categorie.typeLogiciel??null,
+                    date_soumission: categorie.dateSoumission?.toISOString(),
+                    date_notification_acceptation: categorie.dateNotificationAcceptation?.toISOString(),
+                    date_limite_envoi_version_corrigee: categorie.dateLimiteEnvoiVersionCorrigee?.toISOString(),
+                }
+            }),
+            sessions: conference.sessions?.map((session) => {
+                return {
+                    intitule: session.intitule??null,
+                    theme: session.themes?.map((theme) => {
+                        return {
+                            id_theme: theme.id??null,
+                            nom: theme.nom??null,
+                        }
+                    }),
+                    responsables: session.responsables?.map((responsable) => {
+                        return {
+                            id_utilisateur: responsable.utilisateur?.id??null,
+                            id_type_responsabilite: responsable.typeResponsabilite?.id??null,
+                        }
+                    }),
+                }
+            }),
+
+        }
+        console.log(data);
+        const response = await privateQuery("POST", `/conference_full_pro`, { data: data })
+            .then((events: any) => {
+                console.log(events);
+            })
+            .catch((err: any) => {
+                console.log(err);
+            });
+        return response;
     }
 }
 

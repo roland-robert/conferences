@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Container, Form } from 'react-bootstrap';
-import { Conference, EditeurConference, Serie } from '../models/Conference';
+import { CategorieSoumission, Conference, EditeurConference, Serie } from '../models/Conference';
 import { API } from '../api/api';
 import { Pays, Ville } from '../models/Localisation';
 import { Session, Theme } from '../models/Session';
 import '../styles/SubmitConferenceView.css';
-import { Organisateur, Responsable, User } from '../models/Person';
-import { FaCirclePlus, FaXmark } from 'react-icons/fa6';
+import { Organisateur, Responsable, TypeResponsabilite, User } from '../models/Person';
+import { FaCalendarDays, FaCirclePlus, FaXmark } from 'react-icons/fa6';
 import { TitleRow } from '../utils/TitleRow';
+import Select from 'react-select';
 
 
 
 function SubmitConferenceView() {
 
-    function handletest() {
+    function handleCreateConference() {
         console.log(conference);
+        API.createConference(conference!);
     }
 
     const [countries, setCountries] = useState<Pays[]>([]);
@@ -22,6 +24,8 @@ function SubmitConferenceView() {
     const [series, setSeries] = useState<Serie[]>([]);
     const [themes, setThemes] = useState<Theme[]>([]);
     const [users, setUsers] = useState<User[]>([]);
+    const [user, setUser] = useState<User | undefined>(undefined);
+    const [typesResponsabilite, setTypesResponsabilite] = useState<TypeResponsabilite[]>([])
 
 
     const [selectedcountry, setSelectedCountry] = useState<Pays | undefined>(undefined);
@@ -32,14 +36,20 @@ function SubmitConferenceView() {
         await API.getCities(setCities);
         await API.getSeries(setSeries);
         await API.getThemes(setThemes);
+        var user = await API.getUserData();
+        setUser(user);
+
         var users = await API.getUsers();
         setUsers(users);
+        var typesResponsabilite = await API.getTypesResponsabilite();
+        setTypesResponsabilite(typesResponsabilite);
     }
 
     function initConference() {
         var defaultCity = cities.find((_city) => _city!.nom === 'Paris') ?? cities[0];
         setSelectedCountry(defaultCity!.pays);
         setConference(new Conference({
+            userId: user?.id,
             ville: defaultCity,
             serie: series[0],
             organisateur: new Organisateur({}), //par défaut l'utilisateur connecté
@@ -51,6 +61,8 @@ function SubmitConferenceView() {
             workshopConferenceId: undefined,
             dateDebut: new Date(),
             dateFin: new Date(),
+            categoriesSoumission: [],
+            isWorkshop: false,
         }));
     }
 
@@ -61,37 +73,34 @@ function SubmitConferenceView() {
 
     useEffect(() => {
         if (conference !== undefined) return;
+        if (user === undefined) return;
         if (cities.length == 0 || series.length == 0) return;
         initConference();
     }
-        , [cities, series]);
+        , [cities, series, user]);
 
-
-    function handleOrganizerNameChange(e: any) {
-        var organisateur = conference!.organisateur!;
-        organisateur.nom = e.target.value;
+    function handleOrganizerChange(organisateur: Organisateur) {
         setConference(new Conference({
             ...conference,
             organisateur: organisateur,
         }));
+    }
+    function handleOrganizerNameChange(e: any) {
+        var organisateur = conference!.organisateur!;
+        organisateur.nom = e.target.value;
+        handleOrganizerChange(organisateur)
     }
 
     function handleOrganizerEmailChange(e: any) {
         var organisateur = conference!.organisateur!;
         organisateur.email = e.target.value;
-        setConference(new Conference({
-            ...conference,
-            organisateur: organisateur,
-        }));
+        handleOrganizerChange(organisateur)
     }
 
     function handleOrganizerAddressChange(e: any) {
         var organisateur = conference!.organisateur!;
         organisateur.adresse = e.target.value;
-        setConference(new Conference({
-            ...conference,
-            organisateur: organisateur,
-        }));
+        handleOrganizerChange(organisateur)
     }
 
 
@@ -146,6 +155,20 @@ function SubmitConferenceView() {
         }));
     }
 
+    function handleDateMin(e: any) {
+        setConference(new Conference({
+            ...conference,
+            dateDebut: new Date(e.target.value),
+        }));
+    }
+
+    function handleDateMax(e: any) {
+        setConference(new Conference({
+            ...conference,
+            dateFin: new Date(e.target.value),
+        }));
+    }
+
     function handleAddSession() {
         var sessions = conference!.sessions!;
         var newSession = new Session({
@@ -158,6 +181,13 @@ function SubmitConferenceView() {
             ...conference,
             sessions: sessions,
         }));
+
+        //wait for dom to update and scroll down
+        setTimeout(() => {
+            window.scrollTo(0, document.body.scrollHeight);
+        }, 1);
+
+
     }
 
     function handleDeleteSession(index: number) {
@@ -169,70 +199,180 @@ function SubmitConferenceView() {
         }));
     }
 
-    function handleSessionInituleChange(e: any, index: number) {
+    function handleSessionChange(session: Session, index: number) {
         var sessions = conference!.sessions!;
-        sessions[index].intitule = e.target.value;
+        sessions[index] = session;
         setConference(new Conference({
             ...conference,
             sessions: sessions,
         }));
     }
 
-    function handleSessionThemeChange(e: any, index: number) {
-        var sessions = conference!.sessions!;
-        var theme = themes.find((_theme) => _theme.id == e.target.value)!;
-        sessions[index].themes!.push(theme);
-        setConference(new Conference({
-            ...conference,
-            sessions: sessions,
-        }));
+    function handleSessionIntituleChange(e: any, index: number) {
+        if (!conference?.sessions || index > conference?.sessions?.length) return;
+        var session = conference!.sessions![index];
+        session.intitule = e.target.value;
+        handleSessionChange(session, index);
+    }
+
+    function handleSessionThemeChange(selectedThemes: any, index: number) {
+        if (!conference?.sessions || index > conference?.sessions?.length) return;
+        var session = conference!.sessions![index];
+        session.themes = selectedThemes;
+        handleSessionChange(session, index);
     }
 
     function handleAddResponsable(index: number) {
-        var sessions = conference!.sessions!;
-        var responsables = sessions[index].responsables!;
+        if (!conference?.sessions || index > conference?.sessions?.length) return;
+        var session = conference!.sessions![index];
         var newResponsable = new Responsable({
             utilisateur: undefined,
             typeResponsabilite: undefined,
         });
-        responsables.push(newResponsable);
-        setConference(new Conference({
-            ...conference,
-            sessions: sessions,
-        }));
+        session.responsables?.push(newResponsable);
+        handleSessionChange(session, index);
+        setTimeout(() => {
+            console.log(window.scrollY);
+            window.scrollTo(0, window.scrollY + 20);
+        }, 1);
     }
+
+
 
     function handleDeleteResponsable(sessionIndex: number, responsableIndex: number) {
+        var nbResponsables = conference?.sessions![sessionIndex].responsables?.length;
+        if (nbResponsables == undefined || nbResponsables == 0) return;
+        var session = conference!.sessions![sessionIndex];
+        session?.responsables?.splice(responsableIndex, 1);
+        handleSessionChange(session, sessionIndex);
+    }
+
+    function handleResponsableChange(responsable: Responsable, sessionIndex: number, responsableIndex: number) {
+        if (!conference?.sessions || sessionIndex > conference?.sessions?.length) return;
+        if (!conference?.sessions![sessionIndex].responsables || responsableIndex > conference?.sessions![sessionIndex].responsables!.length) return;
+        var session = conference!.sessions![sessionIndex];
+        session!.responsables![responsableIndex] = responsable;
+        handleSessionChange(session, sessionIndex);
+    }
+
+    function handleSessionResponsableChange(e: any, sessionIndex: number, responsableIndex: number) {
         var sessions = conference!.sessions!;
-        var responsables = sessions[sessionIndex].responsables!;
-        responsables.splice(responsableIndex, 1);
+        var user = users.find((_user) => _user.id == e.target.value)!;
+        var responsable = sessions[sessionIndex].responsables![responsableIndex];
+        responsable.utilisateur = user;
+        handleResponsableChange(responsable, sessionIndex, responsableIndex)
+    }
+
+    function handleSessionTypeResponsabiliteChange(e: any, sessionIndex: number, responsableIndex: number) {
+        var sessions = conference!.sessions!;
+        var responsable = sessions[sessionIndex].responsables![responsableIndex];
+        responsable.typeResponsabilite = typesResponsabilite.find((_typeResponsabilite) => _typeResponsabilite.id == e.target.value)!;
+        handleResponsableChange(responsable, sessionIndex, responsableIndex)
+    }
+
+    function handleAdresseProChange(e: any, sessionIndex: number, responsableIndex: number) {
+        var sessions = conference!.sessions!;
+        var responsable = sessions[sessionIndex].responsables![responsableIndex];
+        responsable.adressePro = e.target.value;
+        handleResponsableChange(responsable, sessionIndex, responsableIndex)
+    }
+
+    function handleCategorieSoumissionChange(categorieSoumission: CategorieSoumission, index: number) {
+        if (!conference?.categoriesSoumission && index > conference!.categoriesSoumission!.length) return;
+        var categoriesSoumission = conference!.categoriesSoumission!;
+        categoriesSoumission[index] = categorieSoumission;
         setConference(new Conference({
             ...conference,
-            sessions: sessions,
+            categoriesSoumission: categoriesSoumission,
         }));
     }
 
-    function handleSessionResponsableChange(e: any, sessionIndex: number) {
-        var sessions = conference!.sessions!;
-        var responsables = sessions[sessionIndex].responsables!;
-        var responsable = responsables.find((_responsable) => _responsable.utilisateur!.id == e.target.value)!;
-        responsables.push(responsable);
+    function handlePoliceChange(e: any, index: number) {
+        if (!conference?.categoriesSoumission && index > conference!.categoriesSoumission!.length) return;
+        var categorieSoumission = conference!.categoriesSoumission![index];
+        categorieSoumission.font = e.target.value;
+        handleCategorieSoumissionChange(categorieSoumission, index);
+    }
+
+    function handleTaillePoliceChange(e: any, index: number) {
+        if (!conference?.categoriesSoumission && index > conference!.categoriesSoumission!.length) return;
+        var categorieSoumission = conference!.categoriesSoumission![index];
+        categorieSoumission.fontSize = e.target.value;
+        handleCategorieSoumissionChange(categorieSoumission, index);
+    }
+
+    function handleTypeLogicielChange(e: any, index: number) {
+        if (!conference?.categoriesSoumission && index > conference!.categoriesSoumission!.length) return;
+        var categorieSoumission = conference!.categoriesSoumission![index];
+        categorieSoumission.typeLogiciel = e.target.value;
+        handleCategorieSoumissionChange(categorieSoumission, index);
+    }
+
+    function handleNbPagesMaxChange(e: any, index: number) {
+        if (!conference?.categoriesSoumission && index > conference!.categoriesSoumission!.length) return;
+        var categorieSoumission = conference!.categoriesSoumission![index];
+        categorieSoumission.nombreMaxiPages = e.target.value;
+        handleCategorieSoumissionChange(categorieSoumission, index);
+    }
+
+    function handleDateLimiteSoumissionChange(e: any, index: number) {
+        if (!conference?.categoriesSoumission && index > conference!.categoriesSoumission!.length) return;
+        var categorieSoumission = conference!.categoriesSoumission![index];
+        categorieSoumission.dateSoumission = new Date(e.target.value);
+        handleCategorieSoumissionChange(categorieSoumission, index);
+    }
+
+    function handleDateNotificationAcceptationChange(e: any, index: number) {
+        if (!conference?.categoriesSoumission && index > conference!.categoriesSoumission!.length) return;
+        var categorieSoumission = conference!.categoriesSoumission![index];
+        categorieSoumission.dateNotificationAcceptation = new Date(e.target.value);
+        handleCategorieSoumissionChange(categorieSoumission, index);
+    }
+
+    function handleDateLimiteVersionCorrigeeChange(e: any, index: number) {
+        if (!conference?.categoriesSoumission && index > conference!.categoriesSoumission!.length) return;
+        var categorieSoumission = conference!.categoriesSoumission![index];
+        categorieSoumission.dateLimiteEnvoiVersionCorrigee = new Date(e.target.value);
+        handleCategorieSoumissionChange(categorieSoumission, index);
+    }
+
+    function handleNomCategorie(e: any, index: number) {
+        if (!conference?.categoriesSoumission && index > conference!.categoriesSoumission!.length) return;
+        var categorieSoumission = conference!.categoriesSoumission![index];
+        categorieSoumission.nom = e.target.value;
+        handleCategorieSoumissionChange(categorieSoumission, index);
+    }
+
+    function handleDeleteCategorieSoumission(index: number) {
+        var nbCategoriesSoumission = conference?.categoriesSoumission?.length;
+        if (nbCategoriesSoumission == undefined || nbCategoriesSoumission == 0) return;
+        var categoriesSoumission = conference!.categoriesSoumission!;
+        categoriesSoumission.splice(index, 1);
         setConference(new Conference({
             ...conference,
-            sessions: sessions,
+            categoriesSoumission: categoriesSoumission,
         }));
     }
 
-    function handleSessionTypeResponsabiliteChange(e: any, sessionIndex: number) {
-        var sessions = conference!.sessions!;
-        var responsables = sessions[sessionIndex].responsables!;
-        var responsable = responsables.find((_responsable) => _responsable.utilisateur!.id == e.target.value)!;
-        responsables.push(responsable);
+    function handleAddCategorieSoumission() {
+        var categoriesSoumission = conference!.categoriesSoumission!;
+        var newCategorieSoumission = new CategorieSoumission({
+            font: 'Arial',
+            fontSize: 10,
+            nombreMaxiPages: 10,
+            typeLogiciel: 'PDF',
+            dateSoumission: new Date(),
+            dateNotificationAcceptation: new Date(),
+            dateLimiteEnvoiVersionCorrigee: new Date(),
+        });
+        categoriesSoumission.push(newCategorieSoumission);
         setConference(new Conference({
             ...conference,
-            sessions: sessions,
+            categoriesSoumission: categoriesSoumission,
         }));
     }
+
+
 
     if (cities.length == 0 || series.length == 0 || selectedcountry == undefined || conference == undefined) {
         //TODO: loading
@@ -243,17 +383,19 @@ function SubmitConferenceView() {
         return (
             <div key={index} className='session-responsable-form ms-4'>
                 <div className='d-flex'>
-                    <Form.Group className="mb-3 me-2 w-100" onChange={(e) => handleSessionResponsableChange(e, sessionIndex)}>
+                    <Form.Group className="mb-3 me-2 w-100" onChange={(e) => handleSessionResponsableChange(e, sessionIndex, index)}>
                         <Form.Label>Utilisateur</Form.Label>
-                        <Form.Select>
+                        <Form.Select >
                             {users.map((_user) => (<option key={_user.id} value={_user.id}>{`${_user.prenom} ${_user.nom}`}</option>))}
                         </Form.Select>
                     </Form.Group>
-                    <Form.Group className="mb-3 me-2 w-100" onChange={(e) => handleSessionTypeResponsabiliteChange(e, sessionIndex)}>
+                    <Form.Group className="mb-3 me-2 w-100" onChange={(e) => handleSessionTypeResponsabiliteChange(e, sessionIndex, index)}>
                         <Form.Label>Type de responsabilité</Form.Label>
-                        <Form.Control placeholder='Program chair' />
+                        <Form.Select>
+                            {typesResponsabilite?.map((_type) => (<option key={_type.id} value={_type.id}>{_type.nom}</option>))}
+                        </Form.Select>
                     </Form.Group>
-                    <Form.Group className="mb-3 w-100" onChange={(e) => handleSessionTypeResponsabiliteChange(e, sessionIndex)}>
+                    <Form.Group className="mb-3 w-100" onChange={(e) => handleAdresseProChange(e, sessionIndex, index)}>
                         <Form.Label>Adresse Pro</Form.Label>
                         <Form.Control placeholder='john@doe@pro.fr' />
                     </Form.Group>
@@ -263,8 +405,72 @@ function SubmitConferenceView() {
         )
     }
 
+    const CategorieSoumissionForm = (index: number) => {
+
+        return (<div className='session-form'>
+            <div className='d-flex justify-content-between'>
+                <h2 className='ms-2'>Catégorie de soumission</h2>
+                <Button className='d-flex align-self-center mx-2' variant="secondary" onClick={() => handleDeleteCategorieSoumission(index)}><FaXmark /></Button>
+
+            </div>
+            <Form.Group className="mb-3 me-2 w-50" onChange={(e) => handleNomCategorie(e, index)}>
+                    <Form.Label>Nom de la catégorie</Form.Label>
+                    <Form.Control placeholder="Panel" />
+                </Form.Group>
+            <div className='d-flex'>
+                <Form.Group className="mb-3 me-2 w-50" onChange={(e) => handlePoliceChange(e, index)}>
+                    <Form.Label>Police</Form.Label>
+                    <Form.Control defaultValue="Arial" />
+                </Form.Group>
+                <Form.Group className="mb-3 me-2 w-50" onChange={(e) => handleTaillePoliceChange(e, index)}>
+                    <Form.Label>Taille de police</Form.Label>
+                    <Form.Control type="number" defaultValue={10} />
+                </Form.Group>
+                <Form.Group className="mb-3 w-100 me-2" onChange={(e) => handleTypeLogicielChange(e, index)}>
+                    <Form.Label>Type de logiciel</Form.Label>
+                    <Form.Control defaultValue='PDF' />
+                </Form.Group>
+                <Form.Group className="mb-3  w-50" onChange={(e) => handleNbPagesMaxChange(e, index)}>
+                    <Form.Label>Nombre de pages max</Form.Label>
+                    <Form.Control type="number" defaultValue={10} />
+                </Form.Group>
+            </div>
+            <div className='mb-3 d-flex '>
+                <div className='d-flex-column me-2'>
+                    <label>Date limite de soumission</label>
+                    <input className='date-input w-100 ' aria-label="Date" type="date" onChange={(e) => handleDateLimiteSoumissionChange(e, index)} />
+
+                </div>
+
+                <div className='d-flex-column me-2'>
+                    <label>Date de notification d'acceptation</label>
+                    <input className='date-input w-100 me-2' aria-label="Date" type="date" onChange={(e) => handleDateNotificationAcceptationChange(e, index)} />
+
+                </div>
+
+                <div className='d-flex-column me-2'>
+                    <label>Date limite d'envoi de version corrigée</label>
+                    <input className='date-input w-100 me-2' aria-label="Date" type="date" onChange={(e) => handleDateLimiteVersionCorrigeeChange(e, index)} />
+
+                </div>
+            </div>
+            <hr className="dotted" ></hr>
+        </div>)
+
+    }
+
+
 
     const sessionForm = (index: number) => {
+        const optionMapper = (item: any) => {
+            return { value: item!.id!.toString(), label: item!.nom! }
+        }
+        function onThemeChange(e: any) {
+            var selectedOptions = e.map((e: any) => themes.find((option) => optionMapper(option)?.value == e.value)!);
+            handleSessionThemeChange(selectedOptions, index);
+            return;
+        }
+
         return (
             <div key={index} className='session-form'>
                 <div className='d-flex justify-content-between'>
@@ -272,17 +478,20 @@ function SubmitConferenceView() {
                     <Button className='d-flex align-self-center mx-2' variant="secondary" onClick={() => handleDeleteSession(index)}><FaXmark /></Button>
                 </div>
 
-                <Form.Group className="mb-3" onChange={(e) => handleSessionInituleChange(e, index)}>
+                <Form.Group className="mb-3" onChange={(e) => handleSessionIntituleChange(e, index)}>
                     <Form.Label>Intitulé</Form.Label>
                     <Form.Control placeholder="Intitulé" />
                 </Form.Group>
-                <Form.Group className="mb-3" onChange={(e) => handleSessionThemeChange(e, index)}>
-                    <Form.Label>Thèmes</Form.Label>
-                    <Form.Select>
-                        {themes.map((_theme) => (<option key={_theme.id} value={_theme.id}>{_theme.nom}</option>))}
-                    </Form.Select>
-                </Form.Group>
-
+                <Form.Label>Thèmes</Form.Label>
+                <Select
+                    isMulti={true}
+                    isClearable={true}
+                    onChange={onThemeChange}
+                    defaultValue={conference?.sessions![index].themes?.map((theme) => {
+                        return { value: theme.id, label: theme.nom }
+                    })}
+                    options={themes.map(optionMapper)}
+                />
                 <Form.Group className="">
                     <Form.Label>Responsables</Form.Label>
                 </Form.Group>
@@ -297,20 +506,22 @@ function SubmitConferenceView() {
         <Container >
             <h2>Organisateur</h2>
             <div className='d-flex'>
-                <Form.Group onChange={handleOrganizerNameChange} className="mb-3 me-2 w-100">
+                <Form.Group onChange={handleOrganizerNameChange} className="mb-3 me-2 w-50">
                     <Form.Label>Nom</Form.Label>
                     <Form.Control placeholder="Ecole Centrale de Lyon" />
                 </Form.Group>
 
-                <Form.Group onChange={handleOrganizerEmailChange} className="mb-3 w-100">
+                <Form.Group onChange={handleOrganizerEmailChange} className="mb-3 me-2 w-50">
                     <Form.Label>Adresse email</Form.Label>
                     <Form.Control placeholder="ecl@etu.ec-lyon.fr" />
                 </Form.Group>
+
+                <Form.Group onChange={handleOrganizerAddressChange} className="mb-3 w-100">
+                    <Form.Label>Adresse</Form.Label>
+                    <Form.Control placeholder="36 Av. Guy de Collongue, 69134 Écully" />
+                </Form.Group>
             </div>
-            <Form.Group onChange={handleOrganizerAddressChange} className="mb-3">
-                <Form.Label>Adresse</Form.Label>
-                <Form.Control placeholder="36 Av. Guy de Collongue, 69134 Écully" />
-            </Form.Group>
+
             <hr className="dashed"></hr>
             <h2>Général</h2>
             <Form.Group onChange={handleTitleChange} className="mb-3">
@@ -323,10 +534,34 @@ function SubmitConferenceView() {
                 <Form.Control placeholder='URL' />
                 {conference.image_url && <img src={conference.image_url!} alt="illustration" className='submit-illustration mt-2' />}
             </Form.Group>
-            <Form.Group onChange={handleEditorChange} className="mb-3">
-                <Form.Label>Editeur de la conférence</Form.Label>
-                <Form.Control placeholder="Editeur" />
-            </Form.Group>
+            {/* Editeur et série */}
+            <div className='d-flex'>
+                <Form.Group onChange={handleEditorChange} className="mb-3 me-2 w-100">
+                    <Form.Label>Editeur de la conférence</Form.Label>
+                    <Form.Control placeholder="Editeur" />
+                </Form.Group>
+                <Form.Group className="mb-3 w-100">
+                    <Form.Label>Série</Form.Label>
+                    <Form.Select onChange={handleSerieChange} value={conference.serie!.id}>
+                        {series.map((_serie) => (<option key={_serie.id} value={_serie.id}>{_serie.nom}</option>))}
+                    </Form.Select>
+
+                </Form.Group>
+            </div>
+            <div className='mb-3 d-flex '>
+                <div className='d-flex-column me-2'>
+                    <label>Date limite de soumission</label>
+                    <input className='date-input w-100 ' aria-label="Date" type="date" onChange={(e) => handleDateMin(e)} />
+
+                </div>
+
+                <div className='d-flex-column'>
+                    <label>Date de notification d'acceptation</label>
+                    <input className='date-input w-100 ' aria-label="Date" type="date" onChange={(e) => handleDateMax(e)} />
+
+                </div>
+            </div>
+
             {/* Localisation */}
             <Form.Group className="mb-3 d-flex">
                 <div className='w-50 me-1'>
@@ -334,7 +569,6 @@ function SubmitConferenceView() {
                     <Form.Select onChange={handleCountryChange} value={selectedcountry!.id}>
                         {countries.map((_pays) => (<option key={_pays!.id} value={_pays!.id}>{_pays!.nom}</option>))}
                     </Form.Select>
-
                 </div>
 
                 <div className='w-50 ms-1'>
@@ -349,20 +583,14 @@ function SubmitConferenceView() {
                 <Form.Label>Texte introductif</Form.Label>
                 <Form.Control as="textarea" rows={5} />
             </Form.Group>
-            {/* Série */}
-            <Form.Group className="mb-3">
-                <Form.Label>Série</Form.Label>
-                <Form.Select onChange={handleSerieChange} value={conference.serie!.id}>
-                    {series.map((_serie) => (<option key={_serie.id} value={_serie.id}>{_serie.nom}</option>))}
-                </Form.Select>
-            </Form.Group>
-            {/* <Button variant="primary" onClick={handletest}>Test</Button> */}
             <hr className="dashed"></hr>
-            {/* <h2 >Sessions</h2> */}
-
+            {conference.categoriesSoumission!.map((categorieSoumission, index) => CategorieSoumissionForm(index))}
+            <Button variant="secondary" onClick={handleAddCategorieSoumission}><FaCirclePlus className='me-3' /> Ajouter une catégorie de soumission</Button>
+            <hr className="dashed"></hr>
             {conference.sessions!.map((session, index) => sessionForm(index))}
-            <Button variant="primary" onClick={handleAddSession}><FaCirclePlus className='me-3' /> Ajouter une session</Button>
-
+            <Button variant="secondary" onClick={handleAddSession}><FaCirclePlus className='me-3' /> Ajouter une session</Button>
+            <hr className="dashed"></hr>
+            <Button variant="primary" onClick={handleCreateConference}>Créer la conférence</Button>
         </Container>
     );
 

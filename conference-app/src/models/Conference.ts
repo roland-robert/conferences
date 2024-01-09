@@ -49,9 +49,9 @@ export class CategorieSoumission{
     typeLogiciel?: string;
     dateSoumission?: Date;
     dateNotificationAcceptation?: Date;
-    dateLimiteEnvoiSersionCorrigee?: Date;
+    dateLimiteEnvoiVersionCorrigee?: Date;
 
-    constructor({ conferenceId, nom, nombreMaxiPages, font, fontSize, typeLogiciel, dateSoumission, dateNotificationAcceptation: dateAcceptation, dateLimiteEnvoiSersionCorrigee }: CategorieSoumission) {
+    constructor({ conferenceId, nom, nombreMaxiPages, font, fontSize, typeLogiciel, dateSoumission, dateNotificationAcceptation: dateAcceptation, dateLimiteEnvoiVersionCorrigee: dateLimiteEnvoiSersionCorrigee }: CategorieSoumission) {
         this.conferenceId = conferenceId;
         this.nom = nom;
         this.nombreMaxiPages = nombreMaxiPages;
@@ -60,7 +60,7 @@ export class CategorieSoumission{
         this.typeLogiciel = typeLogiciel;
         this.dateSoumission = dateSoumission;
         this.dateNotificationAcceptation = dateAcceptation;
-        this.dateLimiteEnvoiSersionCorrigee = dateLimiteEnvoiSersionCorrigee;
+        this.dateLimiteEnvoiVersionCorrigee = dateLimiteEnvoiSersionCorrigee;
     }
 
     static fromJSON(json: any): CategorieSoumission {
@@ -73,7 +73,7 @@ export class CategorieSoumission{
             typeLogiciel: json.type_logiciel,
             dateSoumission: new Date(json.date_soumission),
             dateNotificationAcceptation: new Date(json.date_notification_acceptation),
-            dateLimiteEnvoiSersionCorrigee: new Date(json.date_limite_envoi_version_corrigee)
+            dateLimiteEnvoiVersionCorrigee: new Date(json.date_limite_envoi_version_corrigee)
         });
     }
 }
@@ -94,8 +94,9 @@ export class Conference {
     workshopConferenceId?: number;
     isWorkshop?: boolean;
     categoriesSoumission?: CategorieSoumission[];
+    userId?: number;
 
-    constructor({ id, serie, intitule, dateDebut, dateFin, editeur, organisateur, texteIntroductif, ville, image_url, sessions, workshopConferenceId, categoriesSoumission }: Conference) {
+    constructor({ id, serie, intitule, dateDebut, dateFin, editeur, organisateur, texteIntroductif, ville, image_url, sessions, workshopConferenceId, categoriesSoumission: categoriesSoumission, userId }: Conference) {
         this.id = id;
         this.serie = serie;
         this.intitule = intitule;
@@ -110,11 +111,13 @@ export class Conference {
         this.workshopConferenceId = workshopConferenceId;
         this.isWorkshop = this.workshopConferenceId !== null;
         this.categoriesSoumission = categoriesSoumission;
+        this.userId = userId;
     }
 
     
     static fromJSON(json: any): Conference {
         return new Conference({
+            userId: json.id_utilisateur,
             id: json.id_conference,
             serie: Serie.fromJSON(json.serie),
             intitule: json.intitule,
@@ -129,6 +132,7 @@ export class Conference {
             workshopConferenceId: json.id_conference_du_workshop,
             isWorkshop: json.id_conference_du_workshop !== null,
             categoriesSoumission: json.categories_soumission?.map((categorie: any) => CategorieSoumission.fromJSON(categorie))
+
         });
     }
 }

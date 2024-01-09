@@ -70,9 +70,7 @@ export function FilterDateWithLabel({ label, onChange, value }: FilterDateWithLa
                     <div className='me-2'>{<FaCalendarDays />}</div>
                     <label>{label}</label>
                 </div>
-
                 <input className='date-input' aria-label="Date" type="date" defaultValue={value?.substring(0, 10)} onChange={handleChange} />
-
             </div>
         </>
     )

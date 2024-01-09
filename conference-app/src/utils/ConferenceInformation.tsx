@@ -92,9 +92,9 @@ export default function ConferenceInformation({ conference }: ConferenceInformat
                             <FaCalendarCheck className='me-2' />
                             <span className="conf-info-label">Date de notification d'acceptation:</span>{categorieSoumission.dateNotificationAcceptation?.toLocaleDateString()}
                         </div>}
-                        {categorieSoumission.dateLimiteEnvoiSersionCorrigee && <div>
+                        {categorieSoumission.dateLimiteEnvoiVersionCorrigee && <div>
                             <FaCalendarDays className='me-2' />
-                            <span className="conf-info-label">Date limite d'envoi de version corrigée:</span>{categorieSoumission.dateLimiteEnvoiSersionCorrigee?.toLocaleDateString()}
+                            <span className="conf-info-label">Date limite d'envoi de version corrigée:</span>{categorieSoumission.dateLimiteEnvoiVersionCorrigee?.toLocaleDateString()}
                         </div>}
 
 

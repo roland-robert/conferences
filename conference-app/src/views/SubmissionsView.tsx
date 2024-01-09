@@ -25,8 +25,6 @@ function SubmissionsView() {
         fetchData();
     }, []);
 
-
-
     return (
         <>
             <h1>Mes contributions</h1>

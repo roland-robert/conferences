@@ -8,6 +8,7 @@ import { privateQuery } from '../services';
 import { Conference, ConferenceType } from '../models/Conference';
 import { Filters } from '../models/Filters';
 import { API } from '../api/api';
+import { Theme } from '../models/Session';
 
 
 interface ConferenceViewProps {
@@ -24,6 +25,7 @@ function MainView({ openFilters, filters }: ConferenceViewProps) {
         setConferences(conferences);
     }
 
+
     useEffect(() => {
         var isWorkshop = null;
         if (filters.conferenceType === ConferenceType.CONFERENCE) isWorkshop = false;
@@ -32,10 +34,14 @@ function MainView({ openFilters, filters }: ConferenceViewProps) {
             id_pays: filters.pays?.id,
             id_serie: filters.serie?.id,
             is_workshop: isWorkshop,
+            // TODO: filtres thèmes
+            id_theme_list : filters.themes?.map((theme) => theme.id),
             min_date: filters.minDate ? new Date(filters.minDate).toISOString() : null,
             max_date: filters.maxDate ? new Date(filters.maxDate).toISOString() : null,
             id_editeur: filters.editeur?.id,
+            responsable: filters.responsable != '' ? filters.responsable : null,
         }
+        console.log(params);
         fetchConferences(params);
     }, [filters]);
 
