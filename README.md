@@ -84,3 +84,30 @@ you should get json list response with all conferences
 You can also check the API docs :D
 
     http://127.0.0.1:8000/docs
+
+# Run the React frontend
+
+## Install Node and npm
+
+https://docs.npmjs.com/downloading-and-installing-node-js-and-npm
+
+## Run the react
+
+Go to the folder `conference-app`, the react project itself.
+
+Install dependencies :
+
+    npm install
+
+Run server :
+
+    npm start
+
+You should be able to access app at localhost:3000.
+
+
+# Video tutoriel (6 minutes)
+
+Each step of manual setup, everything from scratch supposing you have Python, Node, npm and Docker.
+
+https://drive.google.com/file/d/1PLtNskkvqJ5b7gRfIbuhK-Vf-iYbgwcp/view?usp=sharing
